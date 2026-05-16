@@ -92,41 +92,41 @@ export function Dashboard() {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[300px] text-slate-400">Carregando dashboard...</div>
+    <div className="flex items-center justify-center min-h-[300px] text-stone-400">Carregando dashboard...</div>
   )
 
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Total Produtos</div>
-            <div className="p-2 bg-blue-50 rounded-lg"><Package className="w-4 h-4 text-blue-600" /></div>
+            <div className="text-stone-500 text-xs font-semibold uppercase tracking-wider">Total Produtos</div>
+            <div className="p-2 bg-brand-50 rounded-lg"><Package className="w-4 h-4 text-brand-600" /></div>
           </div>
-          <div className="text-3xl font-bold text-slate-900">{totalProdutos}</div>
+          <div className="text-3xl font-bold text-stone-900">{totalProdutos}</div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Valor em Estoque</div>
+            <div className="text-stone-500 text-xs font-semibold uppercase tracking-wider">Valor em Estoque</div>
             <div className="p-2 bg-green-50 rounded-lg"><DollarSign className="w-4 h-4 text-green-600" /></div>
           </div>
-          <div className="text-3xl font-bold text-slate-900">{valorEstoque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
+          <div className="text-3xl font-bold text-stone-900">{valorEstoque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Faturamento (Mês)</div>
+            <div className="text-stone-500 text-xs font-semibold uppercase tracking-wider">Faturamento (Mês)</div>
             <div className="p-2 bg-emerald-50 rounded-lg"><TrendingUp className="w-4 h-4 text-emerald-600" /></div>
           </div>
-          <div className="text-3xl font-bold text-slate-900">{faturamentoMes.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
-          <div className="text-xs text-slate-400 mt-1">{vendasMes} venda{vendasMes !== 1 ? 's' : ''} no mês</div>
+          <div className="text-3xl font-bold text-stone-900">{faturamentoMes.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
+          <div className="text-xs text-stone-400 mt-1">{vendasMes} venda{vendasMes !== 1 ? 's' : ''} no mês</div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Lucro (Mês)</div>
+            <div className="text-stone-500 text-xs font-semibold uppercase tracking-wider">Lucro (Mês)</div>
             <div className="p-2 bg-purple-50 rounded-lg"><ShoppingCart className="w-4 h-4 text-purple-600" /></div>
           </div>
           <div className="text-3xl font-bold text-green-600">{lucroMes.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
@@ -134,41 +134,41 @@ export function Dashboard() {
       </div>
 
       {/* Chart — full width */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h3 className="text-sm font-bold text-slate-900 mb-4">Faturamento Mensal</h3>
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
+        <h3 className="text-sm font-bold text-stone-900 mb-4">Faturamento Mensal</h3>
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="mes" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} />
-              <Tooltip formatter={(value: number) => [value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Faturamento']} contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
-              <Bar dataKey="faturamento" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
+              <XAxis dataKey="mes" tick={{ fontSize: 12, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fill: '#a8a29e' }} axisLine={false} tickLine={false} tickFormatter={(v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} />
+              <Tooltip formatter={(value: number) => [value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Faturamento']} contentStyle={{ borderRadius: 8, border: '1px solid #e7e5e4', fontSize: 12 }} />
+              <Bar dataKey="faturamento" fill="#d97706" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <div className="text-center py-12 text-slate-400">Nenhum dado de faturamento ainda.</div>
+          <div className="text-center py-12 text-stone-400">Nenhum dado de faturamento ainda.</div>
         )}
       </div>
 
       {/* Alerts — below chart, compact */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-        <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-5">
+        <h3 className="text-sm font-bold text-stone-900 mb-3 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-amber-500" />
           Alertas de Estoque
         </h3>
 
         {esgotados.length === 0 && baixaEstoque.length === 0 ? (
-          <div className="text-center py-6 text-slate-400 text-sm">Nenhum alerta no momento.</div>
+          <div className="text-center py-6 text-stone-400 text-sm">Nenhum alerta no momento.</div>
         ) : (
           <div className="space-y-1">
             {/* ESGOTADOS — always visible */}
             {esgotados.map(p => (
-              <div key={p.id} className="flex items-center justify-between py-2 text-sm border-b border-slate-50 last:border-0">
+              <div key={p.id} className="flex items-center justify-between py-2 text-sm border-b border-stone-50 last:border-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-                  <span className="font-medium text-slate-900 truncate">{p.nome}</span>
-                  {p.codigo_peca && <span className="text-xs text-slate-400 shrink-0">{p.codigo_peca}</span>}
+                  <span className="font-medium text-stone-900 truncate">{p.nome}</span>
+                  {p.codigo_peca && <span className="text-xs text-stone-400 shrink-0">{p.codigo_peca}</span>}
                 </div>
                 <span className="text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-800 shrink-0 ml-2">Esgotado</span>
               </div>
@@ -177,16 +177,16 @@ export function Dashboard() {
             {/* BAIXA_NO_ESTOQUE — toggle */}
             {baixaEstoque.length > 0 && (
               <>
-                <button onClick={() => setShowBaixa(!showBaixa)} className="flex items-center gap-1.5 w-full py-2 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors">
+                <button onClick={() => setShowBaixa(!showBaixa)} className="flex items-center gap-1.5 w-full py-2 text-xs font-medium text-stone-500 hover:text-stone-700 transition-colors">
                   {showBaixa ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                   {showBaixa ? 'Ocultar' : 'Ver'} {baixaEstoque.length} produto{baixaEstoque.length !== 1 ? 's' : ''} com baixa no estoque
                 </button>
                 {showBaixa && baixaEstoque.map(p => (
-                  <div key={p.id} className="flex items-center justify-between py-2 pl-5 text-sm border-b border-slate-50 last:border-0">
+                  <div key={p.id} className="flex items-center justify-between py-2 pl-5 text-sm border-b border-stone-50 last:border-0">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-2 h-2 rounded-full bg-yellow-500 shrink-0" />
-                      <span className="font-medium text-slate-900 truncate">{p.nome}</span>
-                      {p.codigo_peca && <span className="text-xs text-slate-400 shrink-0">{p.codigo_peca}</span>}
+                      <span className="font-medium text-stone-900 truncate">{p.nome}</span>
+                      {p.codigo_peca && <span className="text-xs text-stone-400 shrink-0">{p.codigo_peca}</span>}
                     </div>
                     <span className="text-xs font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 shrink-0 ml-2">{p.quantidade} un.</span>
                   </div>
@@ -198,15 +198,15 @@ export function Dashboard() {
       </div>
 
       {/* Últimas Vendas */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h3 className="text-sm font-bold text-slate-900 mb-4">Últimas Vendas</h3>
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
+        <h3 className="text-sm font-bold text-stone-900 mb-4">Últimas Vendas</h3>
         {ultimasVendas.length === 0 ? (
-          <div className="text-center py-8 text-slate-400 text-sm">Nenhuma venda registrada ainda.</div>
+          <div className="text-center py-8 text-stone-400 text-sm">Nenhuma venda registrada ainda.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-slate-500 uppercase font-semibold border-b border-slate-100">
+                <tr className="text-xs text-stone-500 uppercase font-semibold border-b border-stone-100">
                   <th className="text-left px-3 py-2">Data</th>
                   <th className="text-left px-3 py-2">Cliente</th>
                   <th className="text-right px-3 py-2">Valor</th>
@@ -214,9 +214,9 @@ export function Dashboard() {
               </thead>
               <tbody>
                 {ultimasVendas.map(v => (
-                  <tr key={v.id} className="border-b border-slate-50">
-                    <td className="px-3 py-2 text-slate-500 font-mono text-xs">{new Date(v.data_venda).toLocaleDateString('pt-BR')}</td>
-                    <td className="px-3 py-2 font-medium text-slate-900">{v.clientes?.nome || 'Cliente removido'}</td>
+                  <tr key={v.id} className="border-b border-stone-50">
+                    <td className="px-3 py-2 text-stone-500 font-mono text-xs">{new Date(v.data_venda).toLocaleDateString('pt-BR')}</td>
+                    <td className="px-3 py-2 font-medium text-stone-900">{v.clientes?.nome || 'Cliente removido'}</td>
                     <td className="px-3 py-2 text-right font-medium text-green-700">{Number(v.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                   </tr>
                 ))}

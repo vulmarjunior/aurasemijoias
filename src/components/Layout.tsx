@@ -77,14 +77,17 @@ export function Layout() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all relative border ${
                   isActive 
-                    ? 'bg-amber-50 text-amber-800 font-medium' 
-                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                    ? 'bg-brand-50 text-brand-800 font-medium border-brand-200' 
+                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 border-transparent'
                 }`}
                 onClick={() => setIsSidebarOpen(false)}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-amber-700': 'text-stone-400'}`} />
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-r-full" />
+                )}
+                <Icon className={`w-4 h-4 ${isActive ? 'text-brand-600': 'text-stone-400'}`} />
                 {item.label}
               </NavLink>
             );
@@ -99,14 +102,17 @@ export function Layout() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm transition-all ${
+                className={`flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm transition-all relative border ${
                   isActive 
-                    ? 'bg-amber-50 text-amber-800 font-medium' 
-                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                    ? 'bg-brand-50 text-brand-800 font-medium border-brand-200' 
+                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 border-transparent'
                 }`}
                 onClick={() => setIsSidebarOpen(false)}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-amber-700': 'text-stone-400'}`} />
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-r-full" />
+                )}
+                <Icon className={`w-4 h-4 ${isActive ? 'text-brand-600': 'text-stone-400'}`} />
                 {item.label}
               </NavLink>
             );
@@ -141,8 +147,8 @@ export function Layout() {
                 <div className="text-xs font-bold text-stone-900">{user?.nome || 'Usuário'}</div>
                 <div className="text-[10px] text-stone-400">{user?.perfil}</div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-                <User className="w-4 h-4 text-amber-700" />
+              <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center">
+                <User className="w-4 h-4 text-brand-600" />
               </div>
             </div>
             <button onClick={signOut} className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Sair">

@@ -172,9 +172,9 @@ export function Importar() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h3 className="text-lg font-bold text-slate-900 mb-2">Importar Dados da Planilha</h3>
-        <p className="text-sm text-slate-500">Importe produtos e clientes do arquivo Excel usado anteriormente para evitar retrabalho.</p>
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
+        <h3 className="text-lg font-bold text-stone-900 mb-2">Importar Dados da Planilha</h3>
+        <p className="text-sm text-stone-500">Importe produtos e clientes do arquivo Excel usado anteriormente para evitar retrabalho.</p>
       </div>
 
       {step === 'upload' && (
@@ -182,11 +182,11 @@ export function Importar() {
           onDrop={handleDrop}
           onDragOver={e => e.preventDefault()}
           onClick={() => document.getElementById('file-input')?.click()}
-          className="bg-white rounded-xl border-2 border-dashed border-slate-300 shadow-sm p-12 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all"
+          className="bg-white rounded-xl border-2 border-dashed border-stone-300 shadow-sm p-12 text-center cursor-pointer hover:border-brand-400 hover:bg-brand-50/30 transition-all"
         >
-          <FileSpreadsheet className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-600 font-medium mb-1">Arraste o arquivo Excel aqui ou clique para selecionar</p>
-          <p className="text-xs text-slate-400">Formatos aceitos: .xlsx, .xls</p>
+          <FileSpreadsheet className="w-12 h-12 text-stone-300 mx-auto mb-4" />
+          <p className="text-stone-600 font-medium mb-1">Arraste o arquivo Excel aqui ou clique para selecionar</p>
+          <p className="text-xs text-stone-400">Formatos aceitos: .xlsx, .xls</p>
           <input id="file-input" type="file" accept=".xlsx,.xls" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) parseFile(f) }} />
           {error && <div className="mt-4 text-sm text-red-600 flex items-center justify-center gap-1.5"><AlertCircle className="w-4 h-4" />{error}</div>}
         </div>
@@ -194,10 +194,10 @@ export function Importar() {
 
       {step === 'preview' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-blue-600" /> Produtos</h4>
-              <div className="text-xs text-slate-500">
+          <div className="bg-white rounded-xl border border-stone-200 shadow-sm">
+            <div className="p-4 border-b border-stone-100 flex items-center justify-between">
+              <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-brand-600" /> Produtos</h4>
+              <div className="text-xs text-stone-500">
                 <span className="text-green-600 font-semibold">{okProd}</span> para importar
                 {pularProd > 0 && <span className="text-amber-600 ml-2">{pularProd} ignorados</span>}
               </div>
@@ -205,7 +205,7 @@ export function Importar() {
             <div className="overflow-x-auto max-h-64 overflow-y-auto">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-white">
-                  <tr className="text-xs text-slate-500 uppercase font-semibold border-b border-slate-100">
+                  <tr className="text-xs text-stone-500 uppercase font-semibold border-b border-stone-100">
                     <th className="text-left px-3 py-2">Código</th>
                     <th className="text-left px-3 py-2">Nome</th>
                     <th className="text-left px-3 py-2">Categoria</th>
@@ -217,9 +217,9 @@ export function Importar() {
                 </thead>
                 <tbody>
                   {produtos.map((p, i) => (
-                    <tr key={i} className={`border-b border-slate-50 text-xs ${p.status_import === 'pular' ? 'text-slate-300' : ''}`}>
+                    <tr key={i} className={`border-b border-stone-50 text-xs ${p.status_import === 'pular' ? 'text-stone-300' : ''}`}>
                       <td className="px-3 py-1.5 font-mono">{p.codigo_peca || '-'}</td>
-                      <td className={`px-3 py-1.5 ${p.status_import === 'ok' ? 'text-slate-900' : ''}`}>{p.nome}</td>
+                      <td className={`px-3 py-1.5 ${p.status_import === 'ok' ? 'text-stone-900' : ''}`}>{p.nome}</td>
                       <td className="px-3 py-1.5">{p.categoria || '-'}</td>
                       <td className="px-3 py-1.5 text-right">{p.quantidade}</td>
                       <td className="px-3 py-1.5 text-right">{p.preco_custo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
@@ -234,15 +234,15 @@ export function Importar() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-purple-600" /> Clientes</h4>
-              <div className="text-xs text-slate-500"><span className="text-green-600 font-semibold">{okCli}</span> para importar</div>
+          <div className="bg-white rounded-xl border border-stone-200 shadow-sm">
+            <div className="p-4 border-b border-stone-100 flex items-center justify-between">
+              <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-purple-600" /> Clientes</h4>
+              <div className="text-xs text-stone-500"><span className="text-green-600 font-semibold">{okCli}</span> para importar</div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-xs text-slate-500 uppercase font-semibold border-b border-slate-100">
+                  <tr className="text-xs text-stone-500 uppercase font-semibold border-b border-stone-100">
                     <th className="text-left px-3 py-2">Nome</th>
                     <th className="text-left px-3 py-2">Telefone</th>
                     <th className="text-left px-3 py-2">Instagram</th>
@@ -251,11 +251,11 @@ export function Importar() {
                 </thead>
                 <tbody>
                   {clientes.map((c, i) => (
-                    <tr key={i} className="border-b border-slate-50 text-xs">
-                      <td className="px-3 py-1.5 text-slate-900">{c.nome}</td>
+                    <tr key={i} className="border-b border-stone-50 text-xs">
+                      <td className="px-3 py-1.5 text-stone-900">{c.nome}</td>
                       <td className="px-3 py-1.5">{c.telefone || '-'}</td>
                       <td className="px-3 py-1.5">{c.instagram || '-'}</td>
-                      <td className="px-3 py-1.5 text-slate-500 max-w-[200px] truncate">{c.observacoes || '-'}</td>
+                      <td className="px-3 py-1.5 text-stone-500 max-w-[200px] truncate">{c.observacoes || '-'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -264,8 +264,8 @@ export function Importar() {
           </div>
 
           <div className="flex justify-end gap-3">
-            <button onClick={() => setStep('upload')} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Voltar</button>
-            <button onClick={handleImport} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
+            <button onClick={() => setStep('upload')} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">Voltar</button>
+            <button onClick={handleImport} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
               <Database className="w-4 h-4" /> Importar {okProd > 0 ? `${okProd} produto${okProd > 1 ? 's' : ''}` : ''}{okProd > 0 && okCli > 0 ? ' e ' : ''}{okCli > 0 ? `${okCli} cliente${okCli > 1 ? 's' : ''}` : ''}
             </button>
           </div>
@@ -273,26 +273,26 @@ export function Importar() {
       )}
 
       {step === 'importing' && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Importando dados...</p>
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-12 text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-stone-600 font-medium">Importando dados...</p>
         </div>
       )}
 
       {step === 'done' && result && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-12 text-center">
           <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-6 h-6 text-green-600" />
           </div>
-          <h4 className="text-lg font-bold text-slate-900 mb-2">Importação concluída!</h4>
-          <div className="text-sm text-slate-500 space-y-1">
+          <h4 className="text-lg font-bold text-stone-900 mb-2">Importação concluída!</h4>
+          <div className="text-sm text-stone-500 space-y-1">
             <p><strong className="text-green-600">{result.produtos}</strong> produtos importados com sucesso</p>
             <p><strong className="text-purple-600">{result.clientes}</strong> clientes importados com sucesso</p>
             {pularProd > 0 && <p className="text-amber-600">{pularProd} produtos ignorados (categoria inválida ou sem preço)</p>}
           </div>
           <div className="mt-6 flex justify-center gap-3">
-            <button onClick={() => { setStep('upload'); setProdutos([]); setClientes([]); setResult(null) }} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Importar outro arquivo</button>
-            <a href="/produtos" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors inline-flex items-center gap-1.5">
+            <button onClick={() => { setStep('upload'); setProdutos([]); setClientes([]); setResult(null) }} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">Importar outro arquivo</button>
+            <a href="/produtos" className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-semibold transition-colors inline-flex items-center gap-1.5">
               Ver Produtos <ChevronRight className="w-4 h-4" />
             </a>
           </div>

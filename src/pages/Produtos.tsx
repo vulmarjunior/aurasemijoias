@@ -148,42 +148,42 @@ export function Produtos() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <div className="p-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h3 className="text-lg font-bold text-slate-900">Estoque de Produtos</h3>
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm">
+        <div className="p-6 border-b border-stone-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h3 className="text-lg font-bold text-stone-900">Estoque de Produtos</h3>
           {canEdit(user?.perfil) && (
-            <button onClick={openNew} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
+            <button onClick={openNew} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
               <Plus className="w-4 h-4" /> Novo Produto
             </button>
           )}
         </div>
 
-        <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="p-4 border-b border-stone-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <div className="relative flex-1 w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nome ou código..." className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nome ou código..." className="w-full pl-9 pr-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
           </div>
           <div className="flex gap-2 flex-wrap">
             {categorias.map(c => (
-              <button key={c} onClick={() => setFilterCat(c === filterCat ? 'TODOS' : c)} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${filterCat === c ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{c}</button>
+              <button key={c} onClick={() => setFilterCat(c === filterCat ? 'TODOS' : c)} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${filterCat === c ? 'bg-brand-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>{c}</button>
             ))}
           </div>
           <div className="flex gap-2 flex-wrap">
             {statusList.map(s => (
-              <button key={s} onClick={() => setFilterStatus(s === filterStatus ? 'TODOS' : s)} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${filterStatus === s ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{s === 'TODOS' ? 'Todos' : statusLabel[s]}</button>
+              <button key={s} onClick={() => setFilterStatus(s === filterStatus ? 'TODOS' : s)} className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${filterStatus === s ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>{s === 'TODOS' ? 'Todos' : statusLabel[s]}</button>
             ))}
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-slate-400">Carregando...</div>
+          <div className="text-center py-12 text-stone-400">Carregando...</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 text-slate-400 m-6 border border-dashed rounded-lg border-slate-300">Nenhum produto encontrado.</div>
+          <div className="text-center py-12 text-stone-400 m-6 border border-dashed rounded-lg border-stone-300">Nenhum produto encontrado.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 text-xs text-slate-500 uppercase font-semibold">
+                <tr className="border-b border-stone-100 text-xs text-stone-500 uppercase font-semibold">
                   <th className="text-left px-4 py-3">Código</th>
                   <th className="text-left px-4 py-3">Nome</th>
                   <th className="text-left px-4 py-3">Categoria</th>
@@ -197,21 +197,21 @@ export function Produtos() {
               </thead>
               <tbody>
                 {filtered.map(p => (
-                  <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-slate-500">{p.codigo_peca || '-'}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900">{p.nome}</td>
-                    <td className="px-4 py-3"><span className="text-xs bg-slate-100 px-2 py-0.5 rounded-full text-slate-600">{p.categoria}</span></td>
+                  <tr key={p.id} className="border-b border-stone-50 hover:bg-stone-50/50 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-stone-500">{p.codigo_peca || '-'}</td>
+                    <td className="px-4 py-3 font-medium text-stone-900">{p.nome}</td>
+                    <td className="px-4 py-3"><span className="text-xs bg-stone-100 px-2 py-0.5 rounded-full text-stone-600">{p.categoria}</span></td>
                     <td className="px-4 py-3 text-right font-medium">{p.quantidade}</td>
                     <td className="px-4 py-3 text-right">{Number(p.preco_custo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
 
                     <td className="px-4 py-3 text-right font-medium">{Number(p.valor_venda).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
 
                     <td className="px-4 py-3 text-right text-green-600 font-medium">{Number(p.lucro_unitario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                    <td className="px-4 py-3 text-center"><span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor[p.status] || 'bg-slate-100 text-slate-600'}`}>{statusLabel[p.status] || p.status}</span></td>
+                    <td className="px-4 py-3 text-center"><span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor[p.status] || 'bg-stone-100 text-stone-600'}`}>{statusLabel[p.status] || p.status}</span></td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex justify-center gap-1">
-                        {canEdit(user?.perfil) && <button onClick={() => openEdit(p)} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"><Pencil className="w-4 h-4" /></button>}
-                        {canDelete(user?.perfil) && <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>}
+                        {canEdit(user?.perfil) && <button onClick={() => openEdit(p)} className="p-1.5 rounded-md text-stone-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"><Pencil className="w-4 h-4" /></button>}
+                        {canDelete(user?.perfil) && <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-md text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>}
                       </div>
                     </td>
                   </tr>
@@ -226,76 +226,76 @@ export function Produtos() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setModalOpen(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
-              <h4 className="text-lg font-bold text-slate-900">{editingId ? 'Editar' : 'Novo'} Produto</h4>
-              <button onClick={() => setModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+              <h4 className="text-lg font-bold text-stone-900">{editingId ? 'Editar' : 'Novo'} Produto</h4>
+              <button onClick={() => setModalOpen(false)} className="text-stone-400 hover:text-stone-600"><X className="w-5 h-5" /></button>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Código da Peça</label>
-                  <input value={form.codigo_peca} onChange={e => setForm({ ...form, codigo_peca: e.target.value })} placeholder="Ex: A-001" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">Código da Peça</label>
+                  <input value={form.codigo_peca} onChange={e => setForm({ ...form, codigo_peca: e.target.value })} placeholder="Ex: A-001" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Referência</label>
-                  <input value={form.referencia} onChange={e => setForm({ ...form, referencia: e.target.value })} placeholder="Ex: REF-001" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">Referência</label>
+                  <input value={form.referencia} onChange={e => setForm({ ...form, referencia: e.target.value })} placeholder="Ex: REF-001" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Nome do Produto *</label>
-                <input value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} placeholder="Nome do produto" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                <label className="block text-xs font-semibold text-stone-500 mb-1">Nome do Produto *</label>
+                <input value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} placeholder="Nome do produto" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Categoria</label>
-                  <select value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white">
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">Categoria</label>
+                  <select value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 bg-white">
                     {categorias.length === 0 && <option value="">Carregando...</option>}
                     {categorias.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Quantidade</label>
-                  <input type="number" min="0" value={form.quantidade} onChange={e => setForm({ ...form, quantidade: Number(e.target.value) })} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">Quantidade</label>
+                  <input type="number" min="0" value={form.quantidade} onChange={e => setForm({ ...form, quantidade: Number(e.target.value) })} className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">Preço de Custo (R$)</label>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">Preço de Custo (R$)</label>
                   <input type="number" step="0.01" min="0" value={form.preco_custo} onChange={e => {
                     const custo = e.target.value
                     const margem = Number(form.percentual_lucro || 1.00)
                     const venda = custo ? Math.round(Number(custo) * (1 + margem) * 100) / 100 : ''
                     setForm({ ...form, preco_custo: custo, valor_venda: venda === '' ? '' : String(venda) })
-                  }} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  }} className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1">% Lucro (ex: 1.00 = 100%)</label>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">% Lucro (ex: 1.00 = 100%)</label>
                   <input type="number" step="0.01" min="0" value={form.percentual_lucro} onChange={e => {
                     const margem = e.target.value
                     const custo = Number(form.preco_custo || 0)
                     const venda = custo ? Math.round(custo * (1 + Number(margem || 1.00)) * 100) / 100 : ''
                     setForm({ ...form, percentual_lucro: margem, valor_venda: venda === '' ? '' : String(venda) })
-                  }} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  }} className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Valor de Venda (R$) <span className="text-slate-400 font-normal">— digite diretamente para arredondar</span></label>
+                <label className="block text-xs font-semibold text-stone-500 mb-1">Valor de Venda (R$) <span className="text-stone-400 font-normal">— digite diretamente para arredondar</span></label>
                 <input type="number" step="0.01" min="0" value={form.valor_venda} onChange={e => {
                   const venda = e.target.value
                   const custo = Number(form.preco_custo || 0)
                   const margem = custo > 0 && venda ? String(Math.round(((Number(venda) / custo) - 1) * 10000) / 10000) : form.percentual_lucro
                   setForm({ ...form, valor_venda: venda, percentual_lucro: margem })
-                }} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                }} className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
-              <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Cancelar</button>
-              <button onClick={handleSave} disabled={saving || !form.nome} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
+            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-stone-100">
+              <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">Cancelar</button>
+              <button onClick={handleSave} disabled={saving || !form.nome} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
                 {saving ? 'Salvando...' : <><Check className="w-4 h-4" /> {editingId ? 'Atualizar' : 'Salvar'}</>}
               </button>
             </div>
