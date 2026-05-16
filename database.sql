@@ -28,9 +28,9 @@ CREATE TABLE produtos (
   quantidade INTEGER NOT NULL DEFAULT 0 CHECK (quantidade >= 0),
   preco_custo DECIMAL(10,2) NOT NULL DEFAULT 0,
   percentual_lucro DECIMAL(5,2) NOT NULL DEFAULT 1.00,
-  valor_venda DECIMAL(10,2) GENERATED ALWAYS AS (preco_custo * (1 + percentual_lucro)) STORED,
-  lucro_unitario DECIMAL(10,2) GENERATED ALWAYS AS (preco_custo * percentual_lucro) STORED,
-  lucro_total DECIMAL(10,2) GENERATED ALWAYS AS ((preco_custo * percentual_lucro) * quantidade) STORED,
+  valor_venda DECIMAL(10,2) NOT NULL DEFAULT 0,
+  lucro_unitario DECIMAL(10,2) NOT NULL DEFAULT 0,
+  lucro_total DECIMAL(10,2) NOT NULL DEFAULT 0,
   status status_enum GENERATED ALWAYS AS (
     CASE
       WHEN quantidade = 0 THEN 'ESGOTADO'::status_enum
@@ -143,8 +143,9 @@ After INSERT ON movimentacoes
 FOR EACH ROW EXECUTE FUNCTION process_inventory_movement();
 
 
--- Row Level Security
--- Execute rls-migration.sql no SQL Editor do Supabase Dashboard para ativar
--- 1. ALTER TABLE ... ENABLE ROW LEVEL SECURITY em todas as tabelas
--- 2. Criar função public.user_perfil()
--- 3. Criar políticas SELECT/INSERT/UPDATE/DELETE por perfil
+-- Row Level Security + Correções
+-- Execute migracao-completa.sql no SQL Editor do Supabase Dashboard para aplicar:
+-- 1. DROP EXPRESSION em valor_venda, lucro_unitario, lucro_total (arredondamento manual)
+-- 2. SET search_path nas functions (resolve warning do Security Advisor)
+-- 3. REVOKE EXECUTE anon (resolve warning anon_security_definer)
+-- 4. RLS Policies em todas as tabelas
