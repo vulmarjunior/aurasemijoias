@@ -123,12 +123,17 @@ export function Produtos() {
       lucro_unitario,
       lucro_total: Math.round(lucro_unitario * Number(form.quantidade) * 100) / 100,
     }
+    let error
     if (editingId) {
-      await supabase.from('produtos').update(payload).eq('id', editingId)
+      ({ error } = await supabase.from('produtos').update(payload).eq('id', editingId))
     } else {
-      await supabase.from('produtos').insert(payload)
+      ({ error } = await supabase.from('produtos').insert(payload))
     }
     setSaving(false)
+    if (error) {
+      alert(`Erro ao salvar: ${error.message}`)
+      return
+    }
     setModalOpen(false)
     fetchProdutos()
   }
