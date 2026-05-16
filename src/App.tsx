@@ -8,6 +8,7 @@ import { Vendas } from './pages/Vendas';
 import { Movimentacoes } from './pages/Movimentacoes';
 import { Importar } from './pages/Importar';
 import { Configuracoes } from './pages/Configuracoes';
+import { Faq } from './pages/Faq';
 import { Login } from './pages/Login';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="movimentacoes" element={<Movimentacoes />} />
           <Route path="importar" element={<Importar />} />
           <Route path="configuracoes" element={<Configuracoes />} />
+          <Route path="faq" element={<Faq />} />
         </Route>
       </Route>
     </Routes>

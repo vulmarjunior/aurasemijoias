@@ -7,6 +7,7 @@ import {
   ArrowRightLeft, 
   Upload,
   Settings,
+  HelpCircle,
   Menu,
   X,
   LogOut,
@@ -27,6 +28,7 @@ const navItems = [
 const bottomItems = [
   { path: '/importar', label: 'Importar Planilha', icon: Upload },
   { path: '/configuracoes', label: 'Configurações', icon: Settings },
+  { path: '/faq', label: 'FAQ', icon: HelpCircle },
 ];
 
 export function Layout() {
@@ -133,10 +135,10 @@ export function Layout() {
             </button>
             <div className="flex items-center gap-2">
               <div className="text-sm font-medium text-stone-500 italic hidden md:block">
-                Aura Semijoias / <span className="text-stone-900 font-bold not-italic">{(navItems.find(i => location.pathname.startsWith(i.path)) ?? navItems[0])?.label || 'Dashboard'}</span>
+                Aura Semijoias / <span className="text-stone-900 font-bold not-italic">{([...navItems, ...bottomItems].find(i => location.pathname.startsWith(i.path)) ?? navItems[0])?.label || 'Dashboard'}</span>
               </div>
               <div className="md:hidden text-stone-900 font-bold">
-                {(navItems.find(i => location.pathname.startsWith(i.path)) ?? navItems[0])?.label || 'Dashboard'}
+                {([...navItems, ...bottomItems].find(i => location.pathname.startsWith(i.path)) ?? navItems[0])?.label || 'Dashboard'}
               </div>
             </div>
           </div>
