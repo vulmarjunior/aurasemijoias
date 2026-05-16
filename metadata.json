@@ -1,0 +1,8 @@
+{
+  "name": "Aura Semijoias CRM",
+  "description": "CRM e gestão de estoque para vendas de semijoias Aura Semijoias.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
