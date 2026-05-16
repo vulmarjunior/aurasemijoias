@@ -27,6 +27,7 @@ type FormData = {
   quantidade: number
   preco_custo: string
   percentual_lucro: string
+  valor_venda: string
 }
 
 const emptyForm: FormData = {
@@ -37,6 +38,7 @@ const emptyForm: FormData = {
   quantidade: 0,
   preco_custo: '',
   percentual_lucro: '1.00',
+  valor_venda: '',
 }
 
 const statusList = ['TODOS', 'EM_ESTOQUE', 'BAIXA_NO_ESTOQUE', 'ESGOTADO']
@@ -95,6 +97,7 @@ export function Produtos() {
       quantidade: p.quantidade,
       preco_custo: String(p.preco_custo),
       percentual_lucro: String(p.percentual_lucro),
+      valor_venda: String(p.valor_venda ?? ''),
     })
     setEditingId(p.id)
     setModalOpen(true)
@@ -103,14 +106,22 @@ export function Produtos() {
   async function handleSave() {
     if (!form.nome) return
     setSaving(true)
+    const preco_custo = Number(form.preco_custo) || 0
+    const percentual_lucro = Number(form.percentual_lucro) || 1.00
+    const valor_venda = Number(form.valor_venda) || (preco_custo * (1 + percentual_lucro))
+    const valor_venda_r = Math.round(valor_venda * 100) / 100
+    const lucro_unitario = Math.round((valor_venda_r - preco_custo) * 100) / 100
     const payload = {
       codigo_peca: form.codigo_peca || null,
       referencia: form.referencia || null,
       nome: form.nome,
       categoria: form.categoria,
       quantidade: Number(form.quantidade),
-      preco_custo: Number(form.preco_custo) || 0,
-      percentual_lucro: Number(form.percentual_lucro) || 1.00,
+      preco_custo,
+      percentual_lucro,
+      valor_venda: valor_venda_r,
+      lucro_unitario,
+      lucro_total: Math.round(lucro_unitario * Number(form.quantidade) * 100) / 100,
     }
     if (editingId) {
       await supabase.from('produtos').update(payload).eq('id', editingId)
@@ -253,17 +264,32 @@ export function Produtos() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">Preço de Custo (R$)</label>
-                  <input type="number" step="0.01" min="0" value={form.preco_custo} onChange={e => setForm({ ...form, preco_custo: e.target.value })} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  <input type="number" step="0.01" min="0" value={form.preco_custo} onChange={e => {
+                    const custo = e.target.value
+                    const margem = Number(form.percentual_lucro || 1.00)
+                    const venda = custo ? Math.round(Number(custo) * (1 + margem) * 100) / 100 : ''
+                    setForm({ ...form, preco_custo: custo, valor_venda: venda === '' ? '' : String(venda) })
+                  }} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">% Lucro (ex: 1.00 = 100%)</label>
-                  <input type="number" step="0.01" min="0" value={form.percentual_lucro} onChange={e => setForm({ ...form, percentual_lucro: e.target.value })} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  <input type="number" step="0.01" min="0" value={form.percentual_lucro} onChange={e => {
+                    const margem = e.target.value
+                    const custo = Number(form.preco_custo || 0)
+                    const venda = custo ? Math.round(custo * (1 + Number(margem || 1.00)) * 100) / 100 : ''
+                    setForm({ ...form, percentual_lucro: margem, valor_venda: venda === '' ? '' : String(venda) })
+                  }} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                 </div>
               </div>
 
-              <div className="bg-slate-50 rounded-lg p-3 text-sm">
-                <span className="text-slate-500">Valor de venda calculado: </span>
-                <span className="font-bold text-slate-900">{(Number(form.preco_custo || 0) * (1 + Number(form.percentual_lucro || 0))).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Valor de Venda (R$) <span className="text-slate-400 font-normal">— digite diretamente para arredondar</span></label>
+                <input type="number" step="0.01" min="0" value={form.valor_venda} onChange={e => {
+                  const venda = e.target.value
+                  const custo = Number(form.preco_custo || 0)
+                  const margem = custo > 0 && venda ? String(Math.round(((Number(venda) / custo) - 1) * 10000) / 10000) : form.percentual_lucro
+                  setForm({ ...form, valor_venda: venda, percentual_lucro: margem })
+                }} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
               </div>
             </div>
 
