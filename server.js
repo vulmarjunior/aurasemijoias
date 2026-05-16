@@ -1,10 +1,12 @@
 import express from 'express'
+import cors from 'cors'
 import { createClient } from '@supabase/supabase-js'
 import { config } from 'dotenv'
 
 config()
 
 const app = express()
+app.use(cors({ origin: process.env.APP_URL || 'http://localhost:3000', credentials: true }))
 app.use(express.json())
 
 const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)

@@ -141,3 +141,10 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER apply_inventory_movement
 After INSERT ON movimentacoes
 FOR EACH ROW EXECUTE FUNCTION process_inventory_movement();
+
+
+-- Row Level Security
+-- Execute rls-migration.sql no SQL Editor do Supabase Dashboard para ativar
+-- 1. ALTER TABLE ... ENABLE ROW LEVEL SECURITY em todas as tabelas
+-- 2. Criar função public.user_perfil()
+-- 3. Criar políticas SELECT/INSERT/UPDATE/DELETE por perfil
