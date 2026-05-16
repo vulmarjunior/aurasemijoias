@@ -22,6 +22,13 @@ type FormData = {
 
 const emptyForm: FormData = { nome: '', telefone: '', instagram: '', observacoes: '' }
 
+function maskPhone(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+  if (digits.length <= 2) return `(${digits}`
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
 export function Clientes() {
   const { user } = useAuth()
   const [clientes, setClientes] = useState<Cliente[]>([])
@@ -121,7 +128,7 @@ export function Clientes() {
                     <td className="px-4 py-3 font-medium text-slate-900">{c.nome}</td>
                     <td className="px-4 py-3">
                       {c.telefone ? (
-                        <a href={`https://wa.me/${c.telefone.replace(/\D/g, '')}`} target="_blank" className="flex items-center gap-1.5 text-slate-600 hover:text-green-600 transition-colors">
+                        <a href={`https://wa.me/55${c.telefone.replace(/\D/g, '')}`} target="_blank" className="flex items-center gap-1.5 text-slate-600 hover:text-green-600 transition-colors">
                           <Phone className="w-3.5 h-3.5" /> {c.telefone}
                         </a>
                       ) : '-'}
@@ -164,7 +171,7 @@ export function Clientes() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">Telefone</label>
-                  <input value={form.telefone} onChange={e => setForm({ ...form, telefone: e.target.value })} placeholder="(11) 99999-9999" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
+                  <input value={form.telefone} onChange={e => setForm({ ...form, telefone: maskPhone(e.target.value) })} placeholder="(11) 99999-9999" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">Instagram</label>
