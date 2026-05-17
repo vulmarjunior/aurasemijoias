@@ -177,9 +177,9 @@ export function Vendas() {
     setSavingCancel(true)
     try {
       const { error } = await supabase.rpc('cancelar_venda', {
-        venda_id: cancelVenda.id,
-        responsavel: user?.email || '',
-        motivo: cancelMotivo.trim() || null,
+        p_venda_id: cancelVenda.id,
+        p_responsavel: user?.email || '',
+        p_motivo: cancelMotivo.trim() || null,
       })
       if (error) { alert('Erro ao cancelar venda: ' + error.message); setSavingCancel(false); return }
       setCancelModalOpen(false)

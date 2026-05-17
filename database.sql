@@ -158,7 +158,7 @@ FOR EACH ROW EXECUTE FUNCTION process_inventory_movement();
 
 
 -- Cancel sale: update status, restore stock, log audit
-CREATE OR REPLACE FUNCTION public.cancelar_venda(venda_id UUID, responsavel VARCHAR, motivo TEXT DEFAULT NULL)
+CREATE OR REPLACE FUNCTION public.cancelar_venda(p_venda_id UUID, p_responsavel VARCHAR, p_motivo TEXT DEFAULT NULL)
 RETURNS void
 SECURITY DEFINER
 SET search_path = ''
@@ -176,32 +176,32 @@ BEGIN
   INTO venda_record
   FROM public.vendas v
   LEFT JOIN public.clientes c ON c.id = v.cliente_id
-  WHERE v.id = venda_id AND v.status = 'ATIVA';
+  WHERE v.id = p_venda_id AND v.status = 'ATIVA';
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Venda não encontrada ou já cancelada';
   END IF;
 
-  UPDATE public.vendas SET status = 'CANCELADA' WHERE id = venda_id;
+  UPDATE public.vendas SET status = 'CANCELADA' WHERE id = p_venda_id;
 
-  SELECT COUNT(*) INTO total_itens FROM public.itens_venda WHERE venda_id = venda_id;
+  SELECT COUNT(*) INTO total_itens FROM public.itens_venda WHERE venda_id = p_venda_id;
 
-  FOR item IN SELECT produto_id, quantidade FROM public.itens_venda WHERE venda_id = venda_id LOOP
+  FOR item IN SELECT produto_id, quantidade FROM public.itens_venda WHERE venda_id = p_venda_id LOOP
     INSERT INTO public.movimentacoes (data, produto_id, tipo, quantidade, responsavel, observacoes)
-    VALUES (CURRENT_DATE, item.produto_id, 'ENTRADA', item.quantidade, responsavel, 'Estorno da venda ' || venda_id);
+    VALUES (CURRENT_DATE, item.produto_id, 'ENTRADA', item.quantidade, p_responsavel, 'Estorno da venda ' || p_venda_id);
   END LOOP;
 
   INSERT INTO public.logs_acao (usuario_id, usuario_email, acao, entidade, entidade_id, detalhes)
   VALUES (
     auth.uid(),
-    responsavel,
+    p_responsavel,
     'CANCELAR_VENDA',
     'vendas',
-    venda_id,
+    p_venda_id,
     jsonb_build_object(
       'valor_total', venda_record.valor_total,
       'cliente_nome', venda_record.cliente_nome,
-      'motivo', motivo,
+      'motivo', p_motivo,
       'data_venda', venda_record.data_venda,
       'itens_restaurados', total_itens
     )
