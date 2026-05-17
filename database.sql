@@ -124,10 +124,12 @@ BEFORE UPDATE ON clientes
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Update stock on sale
-CREATE OR REPLACE FUNCTION update_stock_on_sale()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION public.update_stock_on_sale()
+RETURNS TRIGGER
+SET search_path = ''
+AS $$
 BEGIN
-  UPDATE produtos
+  UPDATE public.produtos
   SET quantidade = quantidade - NEW.quantidade
   WHERE id = NEW.produto_id;
   RETURN NEW;
@@ -140,13 +142,15 @@ FOR EACH ROW EXECUTE FUNCTION update_stock_on_sale();
 
 
 -- Update stock on inventory movements
-CREATE OR REPLACE FUNCTION process_inventory_movement()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION public.process_inventory_movement()
+RETURNS TRIGGER
+SET search_path = ''
+AS $$
 BEGIN
   IF NEW.tipo = 'ENTRADA' THEN
-    UPDATE produtos SET quantidade = quantidade + NEW.quantidade WHERE id = NEW.produto_id;
+    UPDATE public.produtos SET quantidade = quantidade + NEW.quantidade WHERE id = NEW.produto_id;
   ELSIF NEW.tipo = 'SAIDA' THEN
-    UPDATE produtos SET quantidade = quantidade - NEW.quantidade WHERE id = NEW.produto_id;
+    UPDATE public.produtos SET quantidade = quantidade - NEW.quantidade WHERE id = NEW.produto_id;
   END IF;
   RETURN NEW;
 END;

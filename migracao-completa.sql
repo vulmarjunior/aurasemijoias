@@ -34,7 +34,7 @@ RETURNS TRIGGER
 SET search_path = ''
 AS $$
 BEGIN
-  UPDATE produtos
+  UPDATE public.produtos
   SET quantidade = quantidade - NEW.quantidade
   WHERE id = NEW.produto_id;
   RETURN NEW;
@@ -47,9 +47,9 @@ SET search_path = ''
 AS $$
 BEGIN
   IF NEW.tipo = 'ENTRADA' THEN
-    UPDATE produtos SET quantidade = quantidade + NEW.quantidade WHERE id = NEW.produto_id;
+    UPDATE public.produtos SET quantidade = quantidade + NEW.quantidade WHERE id = NEW.produto_id;
   ELSIF NEW.tipo = 'SAIDA' THEN
-    UPDATE produtos SET quantidade = quantidade - NEW.quantidade WHERE id = NEW.produto_id;
+    UPDATE public.produtos SET quantidade = quantidade - NEW.quantidade WHERE id = NEW.produto_id;
   END IF;
   RETURN NEW;
 END;
