@@ -9,6 +9,7 @@ type Venda = {
   id: string
   data_venda: string
   valor_total: number
+  status?: string
   clientes?: { nome: string }
 }
 
@@ -49,8 +50,8 @@ export function Dashboard() {
 
     const [prodRes, vendasRes, itensRes, alertasRes, ultVendasRes] = await Promise.all([
       supabase.from('produtos').select('quantidade, preco_custo, valor_venda'),
-      supabase.from('vendas').select('valor_total').gte('data_venda', mesStart).lte('data_venda', mesEnd),
-      supabase.from('itens_venda').select('lucro, vendas!inner(data_venda)').gte('vendas.data_venda', mesStart).lte('vendas.data_venda', mesEnd),
+      supabase.from('vendas').select('valor_total').eq('status', 'ATIVA').gte('data_venda', mesStart).lte('data_venda', mesEnd),
+      supabase.from('itens_venda').select('lucro, vendas!inner(data_venda, status)').eq('vendas.status', 'ATIVA').gte('vendas.data_venda', mesStart).lte('vendas.data_venda', mesEnd),
       supabase.from('produtos').select('id, nome, codigo_peca, status, quantidade').or('status.eq.BAIXA_NO_ESTOQUE,status.eq.ESGOTADO'),
       supabase.from('vendas').select('*, clientes(nome)').order('criado_em', { ascending: false }).limit(5),
     ])
@@ -80,7 +81,7 @@ export function Dashboard() {
       const d = subMonths(now, i)
       const s = startOfMonth(d).toISOString().split('T')[0]
       const e = endOfMonth(d).toISOString().split('T')[0]
-      const { data } = await supabase.from('vendas').select('valor_total').gte('data_venda', s).lte('data_venda', e)
+      const { data } = await supabase.from('vendas').select('valor_total').eq('status', 'ATIVA').gte('data_venda', s).lte('data_venda', e)
       monthsData.push({
         mes: format(d, 'MMM', { locale: ptBR }),
         faturamento: data ? data.reduce((acc, v) => acc + Number(v.valor_total), 0) : 0,
@@ -209,14 +210,22 @@ export function Dashboard() {
                 <tr className="text-xs text-stone-500 uppercase font-semibold border-b border-stone-100">
                   <th className="text-left px-3 py-2">Data</th>
                   <th className="text-left px-3 py-2">Cliente</th>
+                  <th className="text-left px-3 py-2">Status</th>
                   <th className="text-right px-3 py-2">Valor</th>
                 </tr>
               </thead>
               <tbody>
-                {ultimasVendas.map(v => (
+                  {ultimasVendas.map(v => (
                   <tr key={v.id} className="border-b border-stone-50">
                     <td className="px-3 py-2 text-stone-500 font-mono text-xs">{new Date(v.data_venda).toLocaleDateString('pt-BR')}</td>
                     <td className="px-3 py-2 font-medium text-stone-900">{v.clientes?.nome || 'Cliente removido'}</td>
+                    <td className="px-3 py-2">
+                      {v.status === 'CANCELADA' ? (
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-800">Cancelada</span>
+                      ) : (
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-800">Ativa</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2 text-right font-medium text-green-700">{Number(v.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                   </tr>
                 ))}

@@ -63,6 +63,7 @@ CREATE TABLE vendas (
   forma_pagamento forma_pagamento_enum,
   valor_total DECIMAL(10,2) NOT NULL DEFAULT 0,
   observacoes TEXT,
+  status VARCHAR(20) DEFAULT 'ATIVA' NOT NULL CHECK (status IN ('ATIVA', 'CANCELADA')),
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -89,6 +90,19 @@ CREATE TABLE movimentacoes (
   responsavel VARCHAR(100),
   observacoes TEXT,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- Create table: logs_acao (auditoria)
+CREATE TABLE logs_acao (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID REFERENCES perfis(id),
+  usuario_email VARCHAR(255),
+  acao VARCHAR(50) NOT NULL,
+  entidade VARCHAR(50) NOT NULL,
+  entidade_id UUID,
+  detalhes JSONB,
+  criado_em TIMESTAMPTZ DEFAULT now()
 );
 
 
@@ -141,6 +155,59 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER apply_inventory_movement
 After INSERT ON movimentacoes
 FOR EACH ROW EXECUTE FUNCTION process_inventory_movement();
+
+
+-- Cancel sale: update status, restore stock, log audit
+CREATE OR REPLACE FUNCTION public.cancelar_venda(venda_id UUID, responsavel VARCHAR, motivo TEXT DEFAULT NULL)
+RETURNS void
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  item RECORD;
+  venda_record RECORD;
+  total_itens INTEGER;
+BEGIN
+  IF public.user_perfil() != 'ADMIN' THEN
+    RAISE EXCEPTION 'Apenas administradores podem cancelar vendas';
+  END IF;
+
+  SELECT v.*, c.nome as cliente_nome
+  INTO venda_record
+  FROM public.vendas v
+  LEFT JOIN public.clientes c ON c.id = v.cliente_id
+  WHERE v.id = venda_id AND v.status = 'ATIVA';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Venda não encontrada ou já cancelada';
+  END IF;
+
+  UPDATE public.vendas SET status = 'CANCELADA' WHERE id = venda_id;
+
+  SELECT COUNT(*) INTO total_itens FROM public.itens_venda WHERE venda_id = venda_id;
+
+  FOR item IN SELECT produto_id, quantidade FROM public.itens_venda WHERE venda_id = venda_id LOOP
+    INSERT INTO public.movimentacoes (data, produto_id, tipo, quantidade, responsavel, observacoes)
+    VALUES (CURRENT_DATE, item.produto_id, 'ENTRADA', item.quantidade, responsavel, 'Estorno da venda ' || venda_id);
+  END LOOP;
+
+  INSERT INTO public.logs_acao (usuario_id, usuario_email, acao, entidade, entidade_id, detalhes)
+  VALUES (
+    auth.uid(),
+    responsavel,
+    'CANCELAR_VENDA',
+    'vendas',
+    venda_id,
+    jsonb_build_object(
+      'valor_total', venda_record.valor_total,
+      'cliente_nome', venda_record.cliente_nome,
+      'motivo', motivo,
+      'data_venda', venda_record.data_venda,
+      'itens_restaurados', total_itens
+    )
+  );
+END;
+$$ LANGUAGE plpgsql;
 
 
 -- Row Level Security + Correções

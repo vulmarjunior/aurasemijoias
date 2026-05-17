@@ -1,6 +1,6 @@
 import {
   HelpCircle, LogIn, Package, Tag, ShoppingCart, Users,
-  ArrowRightLeft, Upload, BarChart3, Settings, WifiOff,
+  ArrowRightLeft, Upload, BarChart3, Settings, WifiOff, ClipboardList,
   Search, ChevronDown, ExternalLink
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -115,6 +115,47 @@ const sections: FaqSection[] = [
         id: 'desconto-observacoes',
         q: 'O que significa o desconto salvo nas observações?',
         r: 'O desconto é armazenado no campo "Observações" da venda com o formato DESC:valor|texto. Ex: "DESC:15.50|Cliente fidelidade". Isso permite consultar descontos históricos sem criar colunas extras no banco.',
+      },
+      {
+        id: 'cancelar-venda',
+        q: 'Como cancelar uma venda?',
+        r: 'Expanda a venda na listagem clicando sobre ela. Se você for ADMIN, aparecerá o botão "Cancelar Venda" no final do accordion. Clique, confirme o motivo (opcional) e a venda será cancelada. O sistema restaura automaticamente o estoque de todos os itens da venda.',
+      },
+      {
+        id: 'cancelar-estoque',
+        q: 'O que acontece com o estoque ao cancelar uma venda?',
+        r: 'O estoque é restaurado automaticamente! Para cada item da venda cancelada, o sistema cria uma movimentação de ENTRADA com a quantidade exata. A trigger de movimentações soma de volta no estoque do produto. O status do produto é recalculado automaticamente.',
+      },
+      {
+        id: 'quem-pode-cancelar',
+        q: 'Quem pode cancelar uma venda?',
+        r: 'Apenas administradores (perfil ADMIN) podem cancelar vendas. Usuários com perfil USER ou VIEWER não veem o botão de cancelar. Isso garante que apenas pessoas autorizadas realizem estornos.',
+      },
+      {
+        id: 'cancelar-registro',
+        q: 'O cancelamento fica registrado em algum lugar?',
+        r: 'Sim! Toda ação de cancelamento é registrada na tabela "logs_acao" com: quem cancelou, qual venda, valor total, cliente, motivo e data. Além disso, as movimentações de entrada geradas também ficam registradas no histórico de movimentações. O dashboard filtra automaticamente vendas canceladas dos KPIs de faturamento e lucro.',
+      },
+    ],
+  },
+  {
+    title: 'Auditoria e Cancelamentos',
+    icon: ClipboardList,
+    items: [
+      {
+        id: 'o-que-e-logs-acao',
+        q: 'O que é a tabela de log de ações?',
+        r: 'É um registro de auditoria que armazena todas as ações críticas do sistema. Cada registro contém: usuário que executou, email, tipo de ação (ex: CANCELAR_VENDA), entidade afetada, ID do registro e detalhes em formato JSON. Atualmente é usada para rastrear cancelamentos de vendas.',
+      },
+      {
+        id: 'quem-ve-logs',
+        q: 'Quem pode consultar os logs?',
+        r: 'Apenas administradores podem consultar a tabela de logs de ação via SQL no Supabase. A RLS (Row Level Security) do banco bloqueia qualquer outro perfil. Futuramente pode ser criada uma tela de consulta no próprio sistema.',
+      },
+      {
+        id: 'dados-cancelamento',
+        q: 'Que dados ficam salvos ao cancelar uma venda?',
+        r: 'No logs_acao: usuário que cancelou, email, data/hora, ID da venda, valor total, nome do cliente, motivo informado e quantidade de itens restaurados. Nas movimentações: data, produto, ENTRADA com quantidade, responsável e observação "Estorno da venda {ID}".',
       },
     ],
   },

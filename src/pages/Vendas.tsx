@@ -15,6 +15,7 @@ type Venda = {
   valor_total: number
   observacoes: string
   criado_em: string
+  status?: string
   clientes?: { nome: string }
 }
 
@@ -77,6 +78,11 @@ export function Vendas() {
   const [newClientTelefone, setNewClientTelefone] = useState('')
   const [newClientInstagram, setNewClientInstagram] = useState('')
   const [savingClient, setSavingClient] = useState(false)
+
+  const [cancelModalOpen, setCancelModalOpen] = useState(false)
+  const [cancelVenda, setCancelVenda] = useState<Venda | null>(null)
+  const [cancelMotivo, setCancelMotivo] = useState('')
+  const [savingCancel, setSavingCancel] = useState(false)
 
   useEffect(() => { fetchVendas(); fetchClientesProdutos() }, [])
 
@@ -144,22 +150,46 @@ export function Vendas() {
   async function handleQuickClient() {
     if (!newClientNome.trim()) return
     setSavingClient(true)
-    const { data, error } = await supabase.from('clientes').insert({
-      nome: newClientNome.trim(),
-      telefone: newClientTelefone.trim() || null,
-      instagram: newClientInstagram.trim() || null,
-    }).select('id').single()
-    if (error) { alert('Erro ao cadastrar cliente'); setSavingClient(false); return }
-    setClienteId(data.id)
-    setNewClientNome('')
-    setNewClientTelefone('')
-    setNewClientInstagram('')
-    setClientModalOpen(false)
+    try {
+      const { data, error } = await supabase.from('clientes').insert({
+        nome: newClientNome.trim(),
+        telefone: newClientTelefone.trim() || null,
+        instagram: newClientInstagram.trim() || null,
+      }).select('id').single()
+      if (error) { alert('Erro ao cadastrar cliente'); setSavingClient(false); return }
+      setClienteId(data.id)
+      setNewClientNome('')
+      setNewClientTelefone('')
+      setNewClientInstagram('')
+      setClientModalOpen(false)
+      const [cRes] = await Promise.all([
+        supabase.from('clientes').select('id, nome').order('nome'),
+      ])
+      if (cRes.data) setClientes(cRes.data)
+    } catch (err) {
+      alert('Erro inesperado ao cadastrar cliente')
+    }
     setSavingClient(false)
-    const [cRes] = await Promise.all([
-      supabase.from('clientes').select('id, nome').order('nome'),
-    ])
-    if (cRes.data) setClientes(cRes.data)
+  }
+
+  async function handleCancel() {
+    if (!cancelVenda) return
+    setSavingCancel(true)
+    try {
+      const { error } = await supabase.rpc('cancelar_venda', {
+        venda_id: cancelVenda.id,
+        responsavel: user?.email || '',
+        motivo: cancelMotivo.trim() || null,
+      })
+      if (error) { alert('Erro ao cancelar venda: ' + error.message); setSavingCancel(false); return }
+      setCancelModalOpen(false)
+      setCancelVenda(null)
+      setCancelMotivo('')
+      fetchVendas()
+    } catch (err) {
+      alert('Erro inesperado ao cancelar venda')
+    }
+    setSavingCancel(false)
   }
 
   const subtotal = cart.reduce((acc, item) => acc + item.preco_venda * item.quantidade, 0)
@@ -173,34 +203,38 @@ export function Vendas() {
     if (!clienteId || cart.length === 0) return
     setSaving(true)
 
-    const obsFinal = descontoFinal > 0
-      ? `DESC:${descontoFinal.toFixed(2)}|${observacoes}`
-      : observacoes
+    try {
+      const obsFinal = descontoFinal > 0
+        ? `DESC:${descontoFinal.toFixed(2)}|${observacoes}`
+        : observacoes
 
-    const { data: vendaData, error: vendaErr } = await supabase.from('vendas').insert({
-      data_venda: dataVenda,
-      cliente_id: clienteId,
-      forma_pagamento: formaPagamento,
-      valor_total: totalVenda,
-      observacoes: obsFinal || null,
-    }).select('id').single()
+      const { data: vendaData, error: vendaErr } = await supabase.from('vendas').insert({
+        data_venda: dataVenda,
+        cliente_id: clienteId,
+        forma_pagamento: formaPagamento,
+        valor_total: totalVenda,
+        observacoes: obsFinal || null,
+      }).select('id').single()
 
-    if (vendaErr || !vendaData) { alert('Erro ao criar venda'); setSaving(false); return }
+      if (vendaErr || !vendaData) { alert('Erro ao criar venda'); setSaving(false); return }
 
-    const itens = cart.map(item => ({
-      venda_id: vendaData.id,
-      produto_id: item.produto_id,
-      quantidade: item.quantidade,
-      preco_venda: item.preco_venda,
-      preco_custo: item.preco_custo,
-    }))
+      const itens = cart.map(item => ({
+        venda_id: vendaData.id,
+        produto_id: item.produto_id,
+        quantidade: item.quantidade,
+        preco_venda: item.preco_venda,
+        preco_custo: item.preco_custo,
+      }))
 
-    const { error: itensErr } = await supabase.from('itens_venda').insert(itens)
-    if (itensErr) { alert('Erro ao registrar itens'); setSaving(false); return }
+      const { error: itensErr } = await supabase.from('itens_venda').insert(itens)
+      if (itensErr) { alert('Erro ao registrar itens'); setSaving(false); return }
 
+      setModalOpen(false)
+      fetchVendas()
+    } catch (err) {
+      alert('Erro inesperado ao salvar venda')
+    }
     setSaving(false)
-    setModalOpen(false)
-    fetchVendas()
   }
 
   const selectedProd = produtos.find(p => p.id === selectedProdId)
@@ -252,6 +286,7 @@ export function Vendas() {
                       <div className="text-sm text-stone-500 font-mono w-24">{new Date(v.data_venda).toLocaleDateString('pt-BR')}</div>
                       <div className="text-sm font-medium text-stone-900 flex-1">{v.clientes?.nome || 'Cliente removido'}</div>
                       <div className="text-xs bg-stone-100 px-2 py-0.5 rounded-full text-stone-600">{v.forma_pagamento}</div>
+                      {v.status === 'CANCELADA' && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-800">Cancelada</span>}
                       <div className="text-sm font-bold text-green-700">{Number(v.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
                     </div>
                     {expandedId === v.id ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
@@ -286,6 +321,13 @@ export function Vendas() {
                             </div>
                           )}
                           {texto && <div className="text-xs text-stone-500 mt-2 px-3 italic">Obs: {texto}</div>}
+                          {user?.perfil === 'ADMIN' && v.status === 'ATIVA' && (
+                            <div className="mt-3 pt-3 border-t border-stone-200 flex justify-end">
+                              <button onClick={() => { setCancelVenda(v); setCancelModalOpen(true); setCancelMotivo('') }} className="px-3 py-1.5 text-xs font-semibold text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-1">
+                                <X className="w-3.5 h-3.5" /> Cancelar Venda
+                              </button>
+                            </div>
+                          )}
                         </>
                       ) : (
                         <div className="text-center py-3 text-stone-400 text-sm">Carregando itens...</div>
@@ -431,6 +473,34 @@ export function Vendas() {
               <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">Cancelar</button>
               <button onClick={handleSave} disabled={saving || !clienteId || cart.length === 0} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
                 {saving ? 'Salvando...' : <><Check className="w-4 h-4" /> Finalizar Venda</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel modal */}
+      {cancelModalOpen && cancelVenda && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setCancelModalOpen(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="text-lg font-bold text-stone-900">Cancelar Venda</h4>
+              <button onClick={() => setCancelModalOpen(false)} className="text-stone-400 hover:text-stone-600"><X className="w-5 h-5" /></button>
+            </div>
+            <p className="text-sm text-stone-600 mb-4">Tem certeza que deseja cancelar esta venda? O estoque será restaurado automaticamente.</p>
+            <div className="bg-stone-50 rounded-lg p-3 mb-4 text-sm space-y-1">
+              <div className="flex justify-between"><span className="text-stone-500">Data:</span><span>{new Date(cancelVenda.data_venda).toLocaleDateString('pt-BR')}</span></div>
+              <div className="flex justify-between"><span className="text-stone-500">Cliente:</span><span>{cancelVenda.clientes?.nome || '---'}</span></div>
+              <div className="flex justify-between"><span className="text-stone-500">Valor:</span><span className="font-medium">{Number(cancelVenda.valor_total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-stone-500 mb-1">Motivo (opcional)</label>
+              <textarea value={cancelMotivo} onChange={e => setCancelMotivo(e.target.value)} rows={2} placeholder="Ex: Cliente desistiu da compra..." className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 resize-none" />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setCancelModalOpen(false)} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">Voltar</button>
+              <button onClick={handleCancel} disabled={savingCancel} className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
+                {savingCancel ? 'Cancelando...' : 'Cancelar Venda'}
               </button>
             </div>
           </div>

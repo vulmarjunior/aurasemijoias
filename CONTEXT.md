@@ -13,7 +13,7 @@ API: `api/create-user.js` — Vercel Serverless Function para criação de usuá
 
 ---
 
-## Banco de dados — 7 tabelas
+## Banco de dados — 8 tabelas
 
 ### perfis
 id UUID PK → auth.users.id
@@ -57,7 +57,8 @@ data_venda DATE
 cliente_id FK → clientes.id
 forma_pagamento forma_pagamento_enum
 valor_total DECIMAL(10,2)
-observacoes TEXT (desconto prefixado como DESC:val|)
+observacoes TEXT (desconto: DESC:val|, cancelamento: CANCELADA:motivo|)
+status VARCHAR(20) DEFAULT 'ATIVA' CHECK: ATIVA | CANCELADA
 criado_em TIMESTAMP
 
 ### itens_venda
@@ -78,6 +79,16 @@ quantidade INTEGER CHECK (> 0)
 responsavel VARCHAR(100)
 observacoes TEXT
 criado_em TIMESTAMP
+
+### logs_acao
+id UUID PK
+usuario_id FK → perfis.id
+usuario_email VARCHAR(255)
+acao VARCHAR(50) (ex: CANCELAR_VENDA)
+entidade VARCHAR(50) (ex: vendas)
+entidade_id UUID
+detalhes JSONB
+criado_em TIMESTAMPTZ
 
 ---
 
@@ -105,6 +116,11 @@ criado_em TIMESTAMP
 **R5 — Snapshot de preço em itens_venda:**
 - Copiar `preco_venda` e `preco_custo` do produto no momento da venda.
 - Nunca referenciar o preço atual para calcular lucro histórico.
+
+**R6 — Cancelamento de venda restaura estoque e registra log:**
+- Apenas ADMIN pode cancelar vendas.
+- Cancelamento via `cancelar_venda()` function: atualiza status para CANCELADA, insere movimentações ENTRADA para cada item (gatilho `process_inventory_movement` restaura estoque), e registra em `logs_acao`.
+- KPIs do Dashboard filtram vendas CANCELADA.
 
 ---
 
@@ -191,7 +207,7 @@ canManageUsers(perfil) // ADMIN
 
 ## RLS (Row Level Security)
 
-- Aplicadas a todas as 7 tabelas.
+- Aplicadas a todas as 8 tabelas (incluindo `logs_acao`).
 - `user_perfil()` function com `SECURITY DEFINER` e `SET search_path = ''`.
 - Políticas: SELECT para `authenticated`; INSERT/UPDATE para ADMIN/USER; DELETE para ADMIN.
 - Perfis: usuário vê próprio, ADMIN vê todos. Gerenciamento apenas ADMIN.
@@ -230,6 +246,7 @@ canManageUsers(perfil) // ADMIN
 3. `migracao-completa.sql` — DROP EXPRESSION + SET search_path + REVOKE anon + RLS.
 4. `fix-security-alerts-v2.sql` — DROP funções órfãs + CREATE OR REPLACE com SET search_path.
 5. `fix-security-alerts-v3.sql` — ALTER FUNCTION SET search_path + REVOKE definitivo.
+6. `v2-cancel-sale.sql` — `vendas.status`, `logs_acao`, RLS atualização, `cancelar_venda()` function.
 
 ---
 
@@ -238,6 +255,7 @@ canManageUsers(perfil) // ADMIN
 - CRUD completo: Produtos, Clientes, Vendas, Movimentações, Categorias.
 - Dashboard com KPIs, gráfico de faturamento (Recharts), alertas de estoque.
 - Vendas: autocomplete de produtos, desconto % ou R$, cadastro rápido de clientes.
+- Cancelamento de vendas (apenas ADMIN): restaura estoque via movimentações ENTRADA, registra log em `logs_acao`, filtra canceladas dos KPIs do Dashboard.
 - Importação de Excel legado (4 planilhas, 95 produtos, 2 clientes).
 - PWA: service worker (Workbox), manifest, Offline page.
 - Discount prefixado em `observacoes` como `DESC:valor|texto`.
