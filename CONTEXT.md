@@ -128,13 +128,14 @@ criado_em TIMESTAMPTZ
 
 | Rota             | Tela              | Descrição                                             |
 |------------------|-------------------|-------------------------------------------------------|
-| `/`              | Dashboard         | KPIs, gráfico faturamento 6 meses, alertas estoque    |
+| `/`              | Dashboard         | KPIs, banner boas-vindas, gráfico faturamento 6 meses, alertas estoque |
 | `/produtos`      | Estoque           | CRUD, filtros por categoria/status, busca             |
 | `/clientes`      | Clientes          | CRUD, busca, máscara telefone, link WhatsApp          |
 | `/vendas`        | Vendas            | Registrar venda (autocomplete produto, desconto %/R$), listagem |
 | `/movimentacoes` | Movimentações     | Registrar entrada/saída, listagem por produto         |
 | `/configuracoes` | Configurações     | Perfil, alterar senha, gerenciar usuários (admin), categorias |
 | `/importar`      | Importar Planilha | Drag-and-drop Excel para importar dados legado        |
+| `/faq`           | FAQ               | 10 seções, busca, accordion, âncoras                  |
 | (login)          | Login             | Email + senha, sem signup público                     |
 | (offline)        | Offline           | Página exibida quando sem conexão                     |
 
@@ -247,6 +248,7 @@ canManageUsers(perfil) // ADMIN
 4. `fix-security-alerts-v2.sql` — DROP funções órfãs + CREATE OR REPLACE com SET search_path.
 5. `fix-security-alerts-v3.sql` — ALTER FUNCTION SET search_path + REVOKE definitivo.
 6. `v2-cancel-sale.sql` — `vendas.status`, `logs_acao`, RLS atualização, `cancelar_venda()` function.
+7. `fix-trigger-functions.sql` — Corrige `UPDATE produtos` → `UPDATE public.produtos` nas triggers (SET search_path = '' quebrava nome não qualificado).
 
 ---
 
@@ -256,6 +258,7 @@ canManageUsers(perfil) // ADMIN
 - Dashboard com KPIs, gráfico de faturamento (Recharts), alertas de estoque.
 - Vendas: autocomplete de produtos, desconto % ou R$, cadastro rápido de clientes.
 - Cancelamento de vendas (apenas ADMIN): restaura estoque via movimentações ENTRADA, registra log em `logs_acao`, filtra canceladas dos KPIs do Dashboard.
+- Dashboard melhorado: banner de boas-vindas com saudação horária + frase motivacional + versículo bíblico aleatórios; KPIs: Total Estoque (soma unidades), Ticket Médio, Cancelamentos, Margem % no Lucro.
 - Importação de Excel legado (4 planilhas, 95 produtos, 2 clientes).
 - PWA: service worker (Workbox), manifest, Offline page.
 - Discount prefixado em `observacoes` como `DESC:valor|texto`.
@@ -263,6 +266,7 @@ canManageUsers(perfil) // ADMIN
 - Categorias dinâmicas (tabela `categorias`, não ENUM fixo).
 - `valor_venda` editável com recálculo automático de percentual de lucro.
 - Logotipo Aura Semijoias na sidebar e login.
+- FAQ com 10 seções (incluindo "Auditoria e Cancelamentos"), busca, accordion, âncoras.
 
 ---
 
