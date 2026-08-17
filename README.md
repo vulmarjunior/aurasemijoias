@@ -1,20 +1,46 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Aura Semijoias CRM
 
-# Run and deploy your AI Studio app
+Sistema web para controle de produtos, clientes, vendas e movimentações de estoque da Aura Semijoias.
 
-This contains everything you need to run your app locally.
+## Stack
 
-View your app in AI Studio: https://ai.studio/apps/0022390b-2cca-4868-99f5-79adb05aad4b
+- React 19, TypeScript e Vite
+- Tailwind CSS 4
+- Supabase (PostgreSQL, Auth e RLS)
+- PWA com Workbox
+- Vercel
 
-## Run Locally
+## Desenvolvimento local
 
-**Prerequisites:**  Node.js
+Requisitos: Node.js 22 ou superior e um projeto Supabase configurado.
 
+1. Copie `.env.example` para `.env` e preencha as variáveis.
+2. Instale as dependências com `npm install`.
+3. Inicie o frontend com `npm run dev`.
+4. Em outro terminal, inicie a API local com `npm run api`.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+O frontend usa a porta `3000` e encaminha `/api` para a API local na porta `3001`.
+
+## Comandos
+
+- `npm run dev`: frontend em modo de desenvolvimento
+- `npm run api`: API local para operações administrativas
+- `npm run lint`: verificação TypeScript
+- `npm run build`: build de produção
+- `npm run preview`: prévia do build
+
+## Banco de dados
+
+As migrations versionadas ficam em `supabase/migrations`. Operações de venda e movimentação devem ser feitas pelas RPCs transacionais; não insira vendas e itens separadamente pelo frontend.
+
+Nunca exponha `SUPABASE_SERVICE_KEY` no navegador. Apenas variáveis com prefixo `VITE_` são públicas e incorporadas ao build.
+
+## Deploy
+
+Produção: [aurasemijoias.vercel.app](https://aurasemijoias.vercel.app)
+
+Configure na Vercel:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_KEY`

@@ -208,33 +208,32 @@ export function Vendas() {
         ? `DESC:${descontoFinal.toFixed(2)}|${observacoes}`
         : observacoes
 
-      const { data: vendaData, error: vendaErr } = await supabase.from('vendas').insert({
-        data_venda: dataVenda,
-        cliente_id: clienteId,
-        forma_pagamento: formaPagamento,
-        valor_total: totalVenda,
-        observacoes: obsFinal || null,
-      }).select('id').single()
-
-      if (vendaErr || !vendaData) { alert('Erro ao criar venda'); setSaving(false); return }
-
       const itens = cart.map(item => ({
-        venda_id: vendaData.id,
         produto_id: item.produto_id,
         quantidade: item.quantidade,
-        preco_venda: item.preco_venda,
-        preco_custo: item.preco_custo,
       }))
 
-      const { error: itensErr } = await supabase.from('itens_venda').insert(itens)
-      if (itensErr) { alert('Erro ao registrar itens'); setSaving(false); return }
+      const { error } = await supabase.rpc('registrar_venda', {
+        p_data_venda: dataVenda,
+        p_cliente_id: clienteId,
+        p_forma_pagamento: formaPagamento,
+        p_valor_total: Number(totalVenda.toFixed(2)),
+        p_observacoes: obsFinal || null,
+        p_itens: itens,
+      })
+
+      if (error) {
+        alert('Erro ao registrar venda: ' + (error.message || 'operação não concluída'))
+        return
+      }
 
       setModalOpen(false)
-      fetchVendas()
+      await Promise.all([fetchVendas(), fetchClientesProdutos()])
     } catch (err) {
       alert('Erro inesperado ao salvar venda')
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   const selectedProd = produtos.find(p => p.id === selectedProdId)

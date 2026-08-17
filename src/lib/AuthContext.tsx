@@ -34,16 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('id', authId)
       .single()
 
-    if (!data) {
-      const nome = email.split('@')[0]
-      const { data: inserted } = await supabase
-        .from('perfis')
-        .insert({ id: authId, email, nome, perfil: 'USER' })
-        .select()
-        .single()
-      data = inserted
-    }
-
     if (data && data.ativo !== false) {
       setUser({
         id: authId,
@@ -51,20 +41,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         nome: data.nome,
         perfil: data.perfil as PerfilTipo,
       })
+    } else {
+      setUser(null)
     }
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    async function loadSession() {
+      const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
-        fetchPerfil(session.user.id, session.user.email || '')
+        await fetchPerfil(session.user.id, session.user.email || '')
       }
       setLoading(false)
-    })
+    }
+
+    void loadSession()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        fetchPerfil(session.user.id, session.user.email || '')
+        void fetchPerfil(session.user.id, session.user.email || '')
       } else {
         setUser(null)
       }
