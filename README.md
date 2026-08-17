@@ -44,3 +44,11 @@ Configure na Vercel:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_KEY`
+- `CRON_SECRET` (segredo aleatório com pelo menos 16 caracteres)
+
+## Keep-alive do Supabase
+
+A Vercel chama diariamente `/api/keep-alive` às 12h UTC (08h em Manaus). A função
+faz três consultas mínimas ao banco para manter atividade no projeto gratuito,
+sem criar ou alterar dados. O endpoint exige `Authorization: Bearer $CRON_SECRET`;
+a Vercel adiciona esse cabeçalho automaticamente quando a variável está configurada.
