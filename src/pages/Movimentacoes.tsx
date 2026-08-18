@@ -60,24 +60,20 @@ export function Movimentacoes() {
   async function handleSave() {
     if (!produtoId || quantidade < 1) return
 
-    if (tipo === 'SAIDA') {
-      const { data: prod } = await supabase.from('produtos').select('quantidade').eq('id', produtoId).single()
-      if (prod && prod.quantidade < quantidade) {
-        alert(`Estoque insuficiente! Disponível: ${prod.quantidade}`)
-        return
-      }
-    }
-
     setSaving(true)
-    const { error } = await supabase.from('movimentacoes').insert({
-      data,
-      produto_id: produtoId,
-      tipo,
-      quantidade,
-      responsavel: responsavel || null,
-      observacoes: observacoes || null,
+    const { error } = await supabase.rpc('registrar_movimentacao', {
+      p_data: data,
+      p_produto_id: produtoId,
+      p_tipo: tipo,
+      p_quantidade: quantidade,
+      p_responsavel: responsavel || null,
+      p_observacoes: observacoes || null,
     })
-    if (error) { alert('Erro ao registrar movimentação'); setSaving(false); return }
+    if (error) {
+      alert('Erro ao registrar movimentação: ' + (error.message || 'operação não concluída'))
+      setSaving(false)
+      return
+    }
     setSaving(false)
     setModalOpen(false)
     fetchMovs()

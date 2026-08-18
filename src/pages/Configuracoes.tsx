@@ -142,8 +142,8 @@ export function Configuracoes() {
                   </button>
                 ) : (
                   <div className="space-y-3 bg-stone-50 p-4 rounded-lg">
-                    <input type="password" value={pwdOld} onChange={e => setPwdOld(e.target.value)} placeholder="Senha atual" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
-                    <input type="password" value={pwdNew} onChange={e => setPwdNew(e.target.value)} placeholder="Nova senha" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
+                    <input type="password" autoComplete="current-password" value={pwdOld} onChange={e => setPwdOld(e.target.value)} placeholder="Senha atual" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
+                    <input type="password" autoComplete="new-password" value={pwdNew} onChange={e => setPwdNew(e.target.value)} placeholder="Nova senha" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
                     <div className="flex gap-2">
                       <button onClick={() => setChangingPwd(false)} className="px-3 py-2 text-sm text-stone-600 hover:text-stone-900 transition-colors">Cancelar</button>
                       <button onClick={handleChangePassword} disabled={saving || !pwdOld || !pwdNew} className="px-3 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white rounded-lg text-sm font-semibold transition-colors">{saving ? 'Alterando...' : 'Alterar'}</button>
@@ -190,7 +190,7 @@ export function Configuracoes() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-stone-500 mb-1">Senha</label>
-                      <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Senha inicial" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 bg-white" />
+                      <input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Senha inicial" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 bg-white" />
                     </div>
                   </div>
                   <div className="flex justify-end gap-2">

@@ -249,6 +249,7 @@ canManageUsers(perfil) // ADMIN
 5. `fix-security-alerts-v3.sql` — ALTER FUNCTION SET search_path + REVOKE definitivo.
 6. `v2-cancel-sale.sql` — `vendas.status`, `logs_acao`, RLS atualização, `cancelar_venda()` function.
 7. `fix-trigger-functions.sql` — Corrige `UPDATE produtos` → `UPDATE public.produtos` nas triggers (SET search_path = '' quebrava nome não qualificado).
+8. `supabase/migrations/20260817231652_atomic_sales_inventory.sql` — RPCs transacionais para vendas e movimentações, validação concorrente de estoque, permissões de execução e índices de FKs.
 
 ---
 
@@ -267,6 +268,8 @@ canManageUsers(perfil) // ADMIN
 - `valor_venda` editável com recálculo automático de percentual de lucro.
 - Logotipo Aura Semijoias na sidebar e login.
 - FAQ com 10 seções (incluindo "Auditoria e Cancelamentos"), busca, accordion, âncoras.
+- Vendas e movimentações atômicas via RPC, com validação de estoque no banco.
+- Divisão de bundle por página e remoção do cache PWA de respostas autenticadas do Supabase.
 
 ---
 
