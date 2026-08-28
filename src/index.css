@@ -10,3 +10,141 @@
   --color-brand-800: #92400e;
   --color-brand-900: #78350f;
 }
+
+.inventory-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  body.inventory-printing * {
+    visibility: hidden !important;
+  }
+
+  body.inventory-printing,
+  body.inventory-printing #root {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  body.inventory-printing .inventory-print,
+  body.inventory-printing .inventory-print * {
+    visibility: visible !important;
+  }
+
+  body.inventory-printing .inventory-print {
+    display: block;
+    position: absolute;
+    inset: 0;
+    color: #292524;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+  }
+
+  .inventory-print-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #92400e;
+  }
+
+  .inventory-print-header img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+  }
+
+  .inventory-print-header h1 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .inventory-print-header p {
+    margin: 3px 0 0;
+    color: #78716c;
+    font-size: 10px;
+  }
+
+  .inventory-print-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 8px 0;
+    padding: 6px 8px;
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+  }
+
+  .inventory-print-notes {
+    margin: 6px 0;
+  }
+
+  .inventory-print table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .inventory-print thead {
+    display: table-header-group;
+  }
+
+  .inventory-print tr {
+    break-inside: avoid;
+  }
+
+  .inventory-print th,
+  .inventory-print td {
+    height: 22px;
+    padding: 3px 5px;
+    border: 1px solid #a8a29e;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+  }
+
+  .inventory-print th {
+    background: #f5f5f4;
+    font-size: 8px;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .inventory-print .print-check {
+    width: 22px;
+    text-align: center;
+  }
+
+  .inventory-print .print-number {
+    width: 42px;
+    text-align: center;
+  }
+
+  .inventory-print-summary {
+    display: flex;
+    gap: 22px;
+    margin-top: 8px;
+    padding: 7px 8px;
+    border: 1px solid #d6d3d1;
+  }
+
+  .inventory-print-signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin-top: 28px;
+  }
+
+  .inventory-print-signatures span {
+    padding-top: 5px;
+    border-top: 1px solid #57534e;
+    text-align: center;
+  }
+}

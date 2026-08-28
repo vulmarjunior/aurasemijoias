@@ -13,7 +13,7 @@ API: `api/create-user.js` — Vercel Serverless Function para criação de usuá
 
 ---
 
-## Banco de dados — 8 tabelas
+## Banco de dados — 10 tabelas
 
 ### perfis
 id UUID PK → auth.users.id
@@ -90,6 +90,28 @@ entidade_id UUID
 detalhes JSONB
 criado_em TIMESTAMPTZ
 
+### inventarios
+id UUID PK
+titulo VARCHAR(120)
+observacoes TEXT
+status VARCHAR(20) CHECK: EM_ANDAMENTO | FINALIZADO | CANCELADO
+contagem_cega, incluir_esgotados BOOLEAN
+criado_por, finalizado_por FK → perfis.id
+criado_por_nome, finalizado_por_nome VARCHAR(100) (snapshot)
+iniciado_em, finalizado_em, cancelado_em, atualizado_em TIMESTAMPTZ
+
+### itens_inventario
+id UUID PK
+inventario_id FK → inventarios.id CASCADE
+produto_id FK → produtos.id RESTRICT
+codigo_peca, referencia, nome, categoria (snapshot)
+quantidade_sistema INTEGER (snapshot)
+quantidade_fisica INTEGER nullable
+diferenca INTEGER GENERATED ALWAYS
+observacoes TEXT
+conferido_por FK → perfis.id
+conferido_em, atualizado_em TIMESTAMPTZ
+
 ---
 
 ## Regras de negócio — SEMPRE respeitar
@@ -122,6 +144,13 @@ criado_em TIMESTAMPTZ
 - Cancelamento via `cancelar_venda()` function: atualiza status para CANCELADA, insere movimentações ENTRADA para cada item (gatilho `process_inventory_movement` restaura estoque), e registra em `logs_acao`.
 - KPIs do Dashboard filtram vendas CANCELADA.
 
+**R7 — Conferência de inventário preserva snapshot e auditoria:**
+- Apenas um inventário pode permanecer `EM_ANDAMENTO` por vez.
+- Produtos e quantidades do sistema são copiados para `itens_inventario` ao iniciar.
+- Contagens são persistidas por item e podem ser retomadas em outro dispositivo.
+- A finalização é bloqueada se houver itens pendentes ou se o estoque mudou após o snapshot.
+- Divergências geram `movimentacoes` de ENTRADA/SAIDA e log em `logs_acao`; nunca atualizar estoque diretamente.
+
 ---
 
 ## Telas do sistema
@@ -133,6 +162,7 @@ criado_em TIMESTAMPTZ
 | `/clientes`      | Clientes          | CRUD, busca, máscara telefone, link WhatsApp          |
 | `/vendas`        | Vendas            | Registrar venda (autocomplete produto, desconto %/R$), listagem |
 | `/movimentacoes` | Movimentações     | Registrar entrada/saída, listagem por produto         |
+| `/inventarios`   | Conferir Inventário | Contagem digital persistente, ajustes e impressão manual |
 | `/configuracoes` | Configurações     | Perfil, alterar senha, gerenciar usuários (admin), categorias |
 | `/importar`      | Importar Planilha | Drag-and-drop Excel para importar dados legado        |
 | `/faq`           | FAQ               | 10 seções, busca, accordion, âncoras                  |
@@ -208,7 +238,7 @@ canManageUsers(perfil) // ADMIN
 
 ## RLS (Row Level Security)
 
-- Aplicadas a todas as 8 tabelas (incluindo `logs_acao`).
+- Aplicadas a todas as 10 tabelas (incluindo `logs_acao`, `inventarios` e `itens_inventario`).
 - `user_perfil()` function com `SECURITY DEFINER` e `SET search_path = ''`.
 - Políticas: SELECT para `authenticated`; INSERT/UPDATE para ADMIN/USER; DELETE para ADMIN.
 - Perfis: usuário vê próprio, ADMIN vê todos. Gerenciamento apenas ADMIN.
@@ -250,6 +280,7 @@ canManageUsers(perfil) // ADMIN
 6. `v2-cancel-sale.sql` — `vendas.status`, `logs_acao`, RLS atualização, `cancelar_venda()` function.
 7. `fix-trigger-functions.sql` — Corrige `UPDATE produtos` → `UPDATE public.produtos` nas triggers (SET search_path = '' quebrava nome não qualificado).
 8. `supabase/migrations/20260817231652_atomic_sales_inventory.sql` — RPCs transacionais para vendas e movimentações, validação concorrente de estoque, permissões de execução e índices de FKs.
+9. `supabase/migrations/20260827120000_inventory_counts.sql` — Sessões persistentes de inventário, snapshot, RLS, autosave e finalização atômica com ajustes.
 
 ---
 
@@ -270,6 +301,7 @@ canManageUsers(perfil) // ADMIN
 - FAQ com 10 seções (incluindo "Auditoria e Cancelamentos"), busca, accordion, âncoras.
 - Vendas e movimentações atômicas via RPC, com validação de estoque no banco.
 - Divisão de bundle por página e remoção do cache PWA de respostas autenticadas do Supabase.
+- Conferência de inventário digital retomável, contagem cega/aberta, filtros, autosave, impressão manual e relatório final.
 
 ---
 

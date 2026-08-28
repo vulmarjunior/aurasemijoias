@@ -11,7 +11,8 @@ import {
   Menu,
   X,
   LogOut,
-  User
+  User,
+  ClipboardCheck
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
@@ -23,6 +24,7 @@ const navItems = [
   { path: '/clientes', label: 'Clientes', icon: Users },
   { path: '/vendas', label: 'Vendas', icon: ShoppingCart },
   { path: '/movimentacoes', label: 'Movimentações', icon: ArrowRightLeft },
+  { path: '/inventarios', label: 'Conferir Inventário', icon: ClipboardCheck },
 ];
 
 const bottomItems = [
@@ -36,6 +38,9 @@ export function Layout() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const currentItem = [...navItems, ...bottomItems].find(item =>
+    item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)
+  ) ?? navItems[0];
 
   return (
     <div className="flex h-screen overflow-hidden bg-stone-50 font-sans text-stone-900">
@@ -135,10 +140,10 @@ export function Layout() {
             </button>
             <div className="flex items-center gap-2">
               <div className="text-sm font-medium text-stone-500 italic hidden md:block">
-                Aura Semijoias / <span className="text-stone-900 font-bold not-italic">{([...navItems, ...bottomItems].find(i => location.pathname.startsWith(i.path)) ?? navItems[0])?.label || 'Dashboard'}</span>
+                Aura Semijoias / <span className="text-stone-900 font-bold not-italic">{currentItem.label}</span>
               </div>
               <div className="md:hidden text-stone-900 font-bold">
-                {([...navItems, ...bottomItems].find(i => location.pathname.startsWith(i.path)) ?? navItems[0])?.label || 'Dashboard'}
+                {currentItem.label}
               </div>
             </div>
           </div>
