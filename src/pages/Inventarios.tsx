@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   AlertTriangle,
   Check,
@@ -7,6 +7,7 @@ import {
   Eye,
   EyeOff,
   FileCheck2,
+  HelpCircle,
   History,
   Plus,
   Printer,
@@ -97,6 +98,7 @@ export function Inventarios() {
   const [loading, setLoading] = useState(true)
   const [loadingItens, setLoadingItens] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [savingNew, setSavingNew] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [search, setSearch] = useState('')
@@ -377,11 +379,16 @@ export function Inventarios() {
           </div>
           <p className="mt-1 text-sm text-stone-500">Conte o estoque físico, retome depois ou imprima uma folha de conferência.</p>
         </div>
-        {canEdit(user?.perfil) && !inventarios.some(item => item.status === 'EM_ANDAMENTO') && (
-          <button onClick={openNew} className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700">
-            <Plus className="h-4 w-4" /> Nova conferência
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button onClick={() => setHelpOpen(true)} className="flex items-center justify-center gap-1.5 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50">
+            <HelpCircle className="h-4 w-4 text-brand-600" /> Como usar
           </button>
-        )}
+          {canEdit(user?.perfil) && !inventarios.some(item => item.status === 'EM_ANDAMENTO') && (
+            <button onClick={openNew} className="flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700">
+              <Plus className="h-4 w-4" /> Nova conferência
+            </button>
+          )}
+        </div>
       </div>
 
       {mensagem && (
@@ -656,9 +663,73 @@ export function Inventarios() {
         </div>
       )}
 
+      {helpOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4" onClick={() => setHelpOpen(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="ajuda-inventario-titulo" className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white shadow-xl" onClick={event => event.stopPropagation()}>
+            <div className="sticky top-0 flex items-start justify-between border-b border-stone-100 bg-white p-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="h-5 w-5 text-brand-600" />
+                  <h2 id="ajuda-inventario-titulo" className="text-lg font-bold text-stone-900">Como conferir o inventário</h2>
+                </div>
+                <p className="mt-1 text-sm text-stone-500">Da abertura da contagem ao ajuste final do estoque.</p>
+              </div>
+              <button onClick={() => setHelpOpen(false)} aria-label="Fechar ajuda" className="rounded-md p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700"><X className="h-5 w-5" /></button>
+            </div>
+
+            <div className="space-y-6 p-5">
+              <div className="flex gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-yellow-700" />
+                <div>
+                  <div className="font-bold">Antes de começar</div>
+                  <p className="mt-1 text-yellow-800">Evite vendas e movimentações enquanto a conferência estiver aberta. Se o estoque mudar, a finalização será bloqueada para proteger a contagem.</p>
+                </div>
+              </div>
+
+              <HelpSection number="1" title="Inicie a conferência">
+                Clique em <strong>Nova conferência</strong>, informe um título e escolha entre contagem cega, que oculta o saldo esperado, ou aberta, que mostra a quantidade do sistema. Marque produtos esgotados se também quiser procurar peças registradas com saldo zero.
+              </HelpSection>
+
+              <HelpSection number="2" title="Conte e salve">
+                Digite a quantidade física de cada produto. O check verde indica que o item foi contado e o salvamento é automático. Quantidade zero também é uma contagem válida. Você pode fechar a tela e retomar depois, inclusive em outro dispositivo.
+              </HelpSection>
+
+              <HelpSection number="3" title="Revise as diferenças">
+                Use os filtros <strong>Pendentes</strong> e <strong>Divergentes</strong>. Reconte as diferenças e registre observações para peças ausentes, excedentes ou avariadas.
+              </HelpSection>
+
+              <HelpSection number="4" title="Finalize e ajuste o estoque">
+                Quando todos os itens estiverem contados, clique em <strong>Finalizar e ajustar estoque</strong>. Diferenças positivas geram entrada; diferenças negativas geram saída. Tudo fica registrado nas movimentações e na auditoria.
+              </HelpSection>
+
+              <div className="rounded-lg bg-stone-50 p-4">
+                <div className="flex items-center gap-2 font-bold text-stone-800"><Printer className="h-4 w-4 text-brand-600" /> Prefere contar no papel?</div>
+                <p className="mt-2 text-sm leading-relaxed text-stone-600">Clique em <strong>Imprimir para contagem</strong>, preencha a folha e depois digite os resultados nesta tela. Após finalizar, use <strong>Imprimir resultado</strong> para gerar o relatório final ou salvar em PDF.</p>
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 flex justify-end border-t border-stone-100 bg-white p-4">
+              <button onClick={() => setHelpOpen(false)} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700">Entendi</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {selecionado && (
         <InventoryPrint inventario={selecionado} itens={itens} mode={printMode} />
       )}
+    </div>
+  )
+}
+
+function HelpSection({ number, title, children }: { number: string; title: string; children: ReactNode }) {
+  return (
+    <div className="flex gap-3">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-800">{number}</span>
+      <div>
+        <h3 className="font-bold text-stone-800">{title}</h3>
+        <p className="mt-1 text-sm leading-relaxed text-stone-600">{children}</p>
+      </div>
     </div>
   )
 }
