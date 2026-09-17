@@ -2,7 +2,7 @@
 
 > Documentação viva de descobertas técnicas. Atualizada automaticamente durante o desenvolvimento.
 > **Stack**: React 19, Vite, Tailwind CSS v4, Supabase e Vercel
-> **Última atualização**: 2026-08-27
+> **Última atualização**: 2026-09-16
 
 ---
 
@@ -37,6 +37,15 @@
 - **Contexto**: Orientação operacional sem depender de documentação externa.
 - **Solução**: O botão `Como usar` abre um guia responsivo com abertura, autosave, revisão, finalização e fluxo de impressão.
 - **Observações**: Publicado em produção pelo PR `#3`, merge `244872c`.
+
+### Movimentações
+
+#### Saída em lote atômica
+- **Status**: ✅ Confirmado
+- **Data**: 2026-09-16
+- **Contexto**: Dar baixa em vários produtos exigia um lançamento por vez na tela `/movimentacoes`.
+- **Solução**: A RPC `registrar_movimentacoes_lote` valida o estoque de todos os itens, adquire locks na ordem de `produto.id` e insere uma movimentação por produto na mesma transação; o modal `Saída em Lote` adiciona itens por busca com estoque visível e quantidade editável.
+- **Observações**: Falha em qualquer item cancela o lote inteiro; o saldo continua sendo atualizado apenas pelo gatilho `process_inventory_movement`.
 
 ### Deploy
 

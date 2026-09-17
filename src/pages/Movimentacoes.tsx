@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/AuthContext'
 import { canEdit } from '../lib/permissions'
-import { Plus, X, Check, ArrowUpCircle, ArrowDownCircle, Search } from 'lucide-react'
+import { Plus, X, Check, ArrowUpCircle, ArrowDownCircle, Search, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 type Movimentacao = {
@@ -16,7 +16,9 @@ type Movimentacao = {
   produtos?: { nome: string; codigo_peca: string }
 }
 
-type Produto = { id: string; nome: string; codigo_peca: string }
+type Produto = { id: string; nome: string; codigo_peca: string; referencia: string; quantidade: number }
+
+type BatchItem = { key: string; produtoId: string; quantidade: number }
 
 export function Movimentacoes() {
   const { user } = useAuth()
@@ -34,13 +36,23 @@ export function Movimentacoes() {
   const [responsavel, setResponsavel] = useState('')
   const [observacoes, setObservacoes] = useState('')
 
+  const [batchOpen, setBatchOpen] = useState(false)
+  const [batchSaving, setBatchSaving] = useState(false)
+  const [batchData, setBatchData] = useState(new Date().toISOString().split('T')[0])
+  const [batchResponsavel, setBatchResponsavel] = useState('')
+  const [batchObservacoes, setBatchObservacoes] = useState('')
+  const [batchItems, setBatchItems] = useState<BatchItem[]>([])
+  const [batchSearch, setBatchSearch] = useState('')
+  const [batchShowResults, setBatchShowResults] = useState(false)
+  const [batchHighlight, setBatchHighlight] = useState(-1)
+
   useEffect(() => { fetchMovs() }, [])
 
   async function fetchMovs() {
     setLoading(true)
     const [mRes, pRes] = await Promise.all([
       supabase.from('movimentacoes').select('*, produtos(nome, codigo_peca)').order('criado_em', { ascending: false }),
-      supabase.from('produtos').select('id, nome, codigo_peca').order('nome'),
+      supabase.from('produtos').select('id, nome, codigo_peca, referencia, quantidade').order('nome'),
     ])
     if (mRes.data) setMovs(mRes.data)
     if (pRes.data) setProdutos(pRes.data)
@@ -55,6 +67,61 @@ export function Movimentacoes() {
     setResponsavel('')
     setObservacoes('')
     setModalOpen(true)
+  }
+
+  function openBatch() {
+    setBatchData(new Date().toISOString().split('T')[0])
+    setBatchResponsavel('')
+    setBatchObservacoes('')
+    setBatchItems([])
+    setBatchSearch('')
+    setBatchShowResults(false)
+    setBatchHighlight(-1)
+    setBatchOpen(true)
+  }
+
+  function addBatchProduct(prodId: string) {
+    const prod = produtos.find(p => p.id === prodId)
+    if (!prod) return
+    const existing = batchItems.findIndex(i => i.produtoId === prodId)
+    if (existing >= 0) {
+      setBatchItems(batchItems.map((item, idx) => idx === existing
+        ? { ...item, quantidade: Math.min(item.quantidade + 1, prod.quantidade) }
+        : item))
+    } else {
+      setBatchItems([...batchItems, { key: crypto.randomUUID(), produtoId: prodId, quantidade: 1 }])
+    }
+    setBatchSearch('')
+    setBatchShowResults(false)
+    setBatchHighlight(-1)
+  }
+
+  function updateBatchQty(key: string, quantidade: number) {
+    setBatchItems(batchItems.map(item => item.key === key ? { ...item, quantidade } : item))
+  }
+
+  function removeBatchItem(key: string) {
+    setBatchItems(batchItems.filter(item => item.key !== key))
+  }
+
+  async function handleSaveBatch() {
+    if (!canSaveBatch) return
+    setBatchSaving(true)
+    const { error } = await supabase.rpc('registrar_movimentacoes_lote', {
+      p_data: batchData,
+      p_tipo: 'SAIDA',
+      p_responsavel: batchResponsavel || null,
+      p_observacoes: batchObservacoes || null,
+      p_itens: batchItems.map(item => ({ produto_id: item.produtoId, quantidade: item.quantidade })),
+    })
+    if (error) {
+      alert('Erro ao registrar saída em lote: ' + (error.message || 'operação não concluída'))
+      setBatchSaving(false)
+      return
+    }
+    setBatchSaving(false)
+    setBatchOpen(false)
+    fetchMovs()
   }
 
   async function handleSave() {
@@ -86,15 +153,39 @@ export function Movimentacoes() {
     return nome.includes(search.toLowerCase()) || cod.includes(search.toLowerCase()) || m.tipo.includes(search.toUpperCase())
   })
 
+  const batchSelectedIds = new Set(batchItems.map(item => item.produtoId))
+  const batchResults = batchSearch.trim()
+    ? produtos.filter(p =>
+        p.quantidade > 0 &&
+        !batchSelectedIds.has(p.id) &&
+        (p.nome.toLowerCase().includes(batchSearch.toLowerCase()) ||
+         p.codigo_peca?.toLowerCase().includes(batchSearch.toLowerCase()) ||
+         p.referencia?.toLowerCase().includes(batchSearch.toLowerCase()))
+      ).slice(0, 12)
+    : []
+  const batchItemError = (item: BatchItem) => {
+    const prod = produtos.find(p => p.id === item.produtoId)
+    if (!prod) return 'Produto não encontrado'
+    if (item.quantidade < 1) return 'Quantidade deve ser maior que zero'
+    if (item.quantidade > prod.quantidade) return `Estoque insuficiente. Disponível: ${prod.quantidade}`
+    return null
+  }
+  const canSaveBatch = batchItems.length > 0 && !batchItems.some(item => batchItemError(item) !== null) && !batchSaving
+
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-xl border border-stone-200 shadow-sm">
         <div className="p-6 border-b border-stone-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="text-lg font-bold text-stone-900">Movimentações de Estoque</h3>
           {canEdit(user?.perfil) && (
-            <button onClick={openNew} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
-              <Plus className="w-4 h-4" /> Nova Movimentação
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={openBatch} className="px-4 py-2 border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
+                <ArrowDownCircle className="w-4 h-4" /> Saída em Lote
+              </button>
+              <button onClick={openNew} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
+                <Plus className="w-4 h-4" /> Nova Movimentação
+              </button>
+            </div>
           )}
         </div>
 
@@ -196,6 +287,107 @@ export function Movimentacoes() {
               <button onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">Cancelar</button>
               <button onClick={handleSave} disabled={saving || !produtoId || quantidade < 1} className="px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-400 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
                 {saving ? 'Salvando...' : <><Check className="w-4 h-4" /> Registrar</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {batchOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setBatchOpen(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-6 space-y-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="text-lg font-bold text-stone-900">Saída em Lote</h4>
+                  <p className="text-xs text-stone-500 mt-0.5">Dê baixa em vários produtos em um único lançamento.</p>
+                </div>
+                <button onClick={() => setBatchOpen(false)} className="text-stone-400 hover:text-stone-600"><X className="w-5 h-5" /></button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">Data</label>
+                  <input type="date" value={batchData} onChange={e => setBatchData(e.target.value)} className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-500 mb-1">Responsável</label>
+                  <input value={batchResponsavel} onChange={e => setBatchResponsavel(e.target.value)} placeholder="Quem registrou" className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-500 mb-1">Adicionar produto</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                  <input
+                    value={batchSearch}
+                    onChange={e => { setBatchSearch(e.target.value); setBatchShowResults(true); setBatchHighlight(-1) }}
+                    onFocus={() => setBatchShowResults(true)}
+                    onKeyDown={e => {
+                      if (e.key === 'ArrowDown') { e.preventDefault(); setBatchHighlight(i => Math.min(i + 1, batchResults.length - 1)) }
+                      else if (e.key === 'ArrowUp') { e.preventDefault(); setBatchHighlight(i => Math.max(i - 1, 0)) }
+                      else if (e.key === 'Enter' && batchHighlight >= 0 && batchResults[batchHighlight]) { e.preventDefault(); addBatchProduct(batchResults[batchHighlight].id) }
+                      else if (e.key === 'Escape') setBatchShowResults(false)
+                    }}
+                    placeholder="Buscar por nome, código ou referência..."
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
+                  />
+                  {batchShowResults && batchSearch.trim() && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-stone-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {batchResults.length === 0 ? (
+                        <div className="px-3 py-2 text-sm text-stone-400">Nenhum produto com estoque encontrado.</div>
+                      ) : (
+                        batchResults.map((p, i) => (
+                          <button key={p.id} onMouseEnter={() => setBatchHighlight(i)} onClick={() => addBatchProduct(p.id)} className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-brand-50 transition-colors ${i === batchHighlight ? 'bg-brand-50' : ''}`}>
+                            <span className="font-medium text-stone-900">{p.codigo_peca || '---'}</span>
+                            <span className="text-stone-600 truncate">{p.nome}</span>
+                            <span className="ml-auto text-xs text-stone-400 shrink-0">estoque: {p.quantidade}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-500 mb-1">Itens da saída ({batchItems.length})</label>
+                {batchItems.length === 0 ? (
+                  <div className="text-center py-8 text-sm text-stone-400 border border-dashed border-stone-300 rounded-lg">Nenhum produto adicionado.</div>
+                ) : (
+                  <div className="border border-stone-200 rounded-lg divide-y divide-stone-100">
+                    {batchItems.map(item => {
+                      const prod = produtos.find(p => p.id === item.produtoId)
+                      const erro = batchItemError(item)
+                      return (
+                        <div key={item.key} className="px-3 py-2.5 space-y-1">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-stone-900 truncate">{prod?.codigo_peca ? `${prod.codigo_peca} - ` : ''}{prod?.nome || 'Produto removido'}</div>
+                              <div className="text-xs text-stone-500">Estoque disponível: {prod?.quantidade ?? 0}</div>
+                            </div>
+                            <input type="number" min="1" max={prod?.quantidade || 1} value={item.quantidade} onChange={e => updateBatchQty(item.key, Number(e.target.value))} className={`w-20 px-3 py-2 text-sm text-right border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 ${erro ? 'border-red-300' : 'border-stone-200 focus:border-brand-500'}`} />
+                            <button onClick={() => removeBatchItem(item.key)} className="text-red-400 hover:text-red-600 p-1" title="Remover item"><Trash2 className="w-4 h-4" /></button>
+                          </div>
+                          {erro && <p className="text-xs text-red-600">{erro}</p>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-500 mb-1">Observações</label>
+                <textarea value={batchObservacoes} onChange={e => setBatchObservacoes(e.target.value)} rows={2} placeholder="Motivo da saída..." className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 resize-none" />
+              </div>
+            </div>
+
+            <div className="px-6 pb-6 flex justify-end gap-3 pt-4 border-t border-stone-100">
+              <button onClick={() => setBatchOpen(false)} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors">Cancelar</button>
+              <button onClick={handleSaveBatch} disabled={!canSaveBatch} className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5">
+                {batchSaving ? 'Registrando...' : <><Check className="w-4 h-4" /> {batchItems.length === 0 ? 'Registrar saídas' : batchItems.length === 1 ? 'Registrar 1 saída' : `Registrar ${batchItems.length} saídas`}</>}
               </button>
             </div>
           </div>
