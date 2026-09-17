@@ -281,6 +281,7 @@ canManageUsers(perfil) // ADMIN
 7. `fix-trigger-functions.sql` — Corrige `UPDATE produtos` → `UPDATE public.produtos` nas triggers (SET search_path = '' quebrava nome não qualificado).
 8. `supabase/migrations/20260817231652_atomic_sales_inventory.sql` — RPCs transacionais para vendas e movimentações, validação concorrente de estoque, permissões de execução e índices de FKs.
 9. `supabase/migrations/20260827120000_inventory_counts.sql` — Sessões persistentes de inventário, snapshot, RLS, autosave e finalização atômica com ajustes.
+10. `supabase/migrations/20260916120000_batch_inventory_movements.sql` — RPC transacional `registrar_movimentacoes_lote` para saída em lote, com validação de estoque e locks na mesma ordem.
 
 ---
 
@@ -302,6 +303,7 @@ canManageUsers(perfil) // ADMIN
 - Vendas e movimentações atômicas via RPC, com validação de estoque no banco.
 - Divisão de bundle por página e remoção do cache PWA de respostas autenticadas do Supabase.
 - Conferência de inventário digital retomável, contagem cega/aberta, filtros, autosave, impressão manual e relatório final.
+- Saída em lote em `/movimentacoes`: baixa de vários produtos em um único lançamento atômico, com busca por produto e validação de estoque no cliente e no banco.
 
 ---
 
