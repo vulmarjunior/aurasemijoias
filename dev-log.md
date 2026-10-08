@@ -82,7 +82,11 @@
 
 ## 🔄 Correções de Registro
 
-Nenhuma correção registrada nesta sessão.
+#### Filtro de disponibilidade na tela de etiquetas
+- **Antes**: A seleção em `/etiquetas` filtrava pelo status calculado (`EM_ESTOQUE`, `BAIXA_NO_ESTOQUE`, `ESGOTADO`).
+- **Depois**: Filtra por disponibilidade real — `Com estoque` (quantidade > 0) e `Esgotados` (quantidade = 0).
+- **Data da correção**: 2026-10-08
+- **Motivo**: Com peças únicas, o status `EM_ESTOQUE` (quantidade ≥ 3) nunca ocorre no catálogo; o filtro "Em Estoque" retornava sempre lista vazia e parecia não funcionar. Corrigido no PR `#7`, commit `eb68133`.
 
 ---
 
