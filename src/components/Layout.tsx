@@ -12,7 +12,8 @@ import {
   X,
   LogOut,
   User,
-  ClipboardCheck
+  ClipboardCheck,
+  Tags
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
@@ -25,6 +26,7 @@ const navItems = [
   { path: '/vendas', label: 'Vendas', icon: ShoppingCart },
   { path: '/movimentacoes', label: 'Movimentações', icon: ArrowRightLeft },
   { path: '/inventarios', label: 'Conferir Inventário', icon: ClipboardCheck },
+  { path: '/etiquetas', label: 'Etiquetas', icon: Tags },
 ];
 
 const bottomItems = [

@@ -163,6 +163,7 @@ conferido_em, atualizado_em TIMESTAMPTZ
 | `/vendas`        | Vendas            | Registrar venda (autocomplete produto, desconto %/R$), listagem |
 | `/movimentacoes` | Movimentações     | Registrar entrada/saída, listagem por produto         |
 | `/inventarios`   | Conferir Inventário | Contagem digital persistente, ajustes e impressão manual |
+| `/etiquetas`     | Etiquetas         | Seleção em lote e impressão PIMACO A4251 (65/folha, código + preço) |
 | `/configuracoes` | Configurações     | Perfil, alterar senha, gerenciar usuários (admin), categorias |
 | `/importar`      | Importar Planilha | Drag-and-drop Excel para importar dados legado        |
 | `/faq`           | FAQ               | 10 seções, busca, accordion, âncoras                  |
@@ -304,6 +305,7 @@ canManageUsers(perfil) // ADMIN
 - Divisão de bundle por página e remoção do cache PWA de respostas autenticadas do Supabase.
 - Conferência de inventário digital retomável, contagem cega/aberta, filtros, autosave, impressão manual e relatório final.
 - Saída em lote em `/movimentacoes`: baixa de vários produtos em um único lançamento atômico, com busca por produto e validação de estoque no cliente e no banco.
+- Impressão de etiquetas em `/etiquetas`: seleção em lote (busca, categoria, status), 1 etiqueta por produto com `codigo_peca` + preço de venda, pré-visualização fiel da folha PIMACO A4251 (65 por folha), posição inicial para reaproveitar folhas parciais e ajuste fino de impressão em mm.
 
 ---
 

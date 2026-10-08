@@ -2,7 +2,7 @@
 
 > Documentação viva de descobertas técnicas. Atualizada automaticamente durante o desenvolvimento.
 > **Stack**: React 19, Vite, Tailwind CSS v4, Supabase e Vercel
-> **Última atualização**: 2026-09-16
+> **Última atualização**: 2026-10-08
 
 ---
 
@@ -46,6 +46,15 @@
 - **Contexto**: Dar baixa em vários produtos exigia um lançamento por vez na tela `/movimentacoes`.
 - **Solução**: A RPC `registrar_movimentacoes_lote` valida o estoque de todos os itens, adquire locks na ordem de `produto.id` e insere uma movimentação por produto na mesma transação; o modal `Saída em Lote` adiciona itens por busca com estoque visível e quantidade editável.
 - **Observações**: Falha em qualquer item cancela o lote inteiro; o saldo continua sendo atualizado apenas pelo gatilho `process_inventory_movement`.
+
+### Etiquetas
+
+#### Impressão em lote de etiquetas PIMACO A4251
+- **Status**: ✅ Confirmado
+- **Data**: 2026-10-08
+- **Contexto**: O usuário redigitava produto por produto no editor da Pimaco para imprimir etiquetas de código e preço.
+- **Solução**: A tela `/etiquetas` seleciona produtos em lote (busca, categoria e status), monta as folhas A4251 (65 etiquetas de 38,2 × 21,2 mm em 5 colunas × 13 linhas) e imprime via `window.print()` com `codigo_peca` (fallback `referencia`) e preço de venda. Inclui posição inicial da folha e ajuste fino horizontal/vertical em mm.
+- **Observações**: A folha é renderizada com `createPortal` em `document.body` e `#root { display:none }` no `@media print`, com `@page` A4 retrato injetado pela própria página.
 
 ### Deploy
 
@@ -103,6 +112,12 @@ Nenhuma correção registrada nesta sessão.
 - **Exemplo**: Fila de promises por `item.id`, debounce e flush no `blur` ou antes de finalizar/trocar de sessão.
 - **Fonte**: Revisão de condições de corrida no frontend.
 
+#### Geometria oficial PIMACO A4251
+- **Regra**: Folha A4 retrato; margem superior 10,7 mm; margem esquerda 4,5 mm; etiqueta 38,2 × 21,2 mm; passo horizontal 40,7 mm (gap de 2,5 mm); passo vertical 21,2 mm (linhas encostadas); 5 colunas × 13 linhas = 65 etiquetas.
+- **Aplica-se a**: `src/pages/Etiquetas.tsx` e CSS de impressão em `src/index.css`.
+- **Exemplo**: Posição `left = 4.5 + coluna * 40.7`, `top = 10.7 + linha * 21.2`.
+- **Fonte**: Parâmetros oficiais de impressão Pimaco para folhas A4.
+
 ---
 
 ## 📋 Decisões de Arquitetura
@@ -122,6 +137,11 @@ Nenhuma correção registrada nesta sessão.
 - **Alternativas rejeitadas**: Relatório avulso sem sessão, pois não permitiria retomada, divergências automáticas nem auditoria.
 - **Data**: 2026-08-27
 
+#### Impressão de etiquetas via portal no body
+- **Escolha**: Renderizar a folha A4251 com `createPortal` em `document.body`, ocultar `#root` no `@media print` e injetar `@page` A4 retrato a partir da própria página de Etiquetas.
+- **Alternativas rejeitadas**: `visibility:hidden` como no inventário, por não garantir fatiamento correto em várias folhas; `@page` estático no CSS, por conflitar com o `@page` A4 landscape do inventário.
+- **Data**: 2026-10-08
+
 ---
 
 ## ⚠️ Armadilhas Conhecidas (Gotchas)
@@ -130,3 +150,4 @@ Nenhuma correção registrada nesta sessão.
 - **Operação durante inventário**: Vendas e movimentações alteram o estoque após o snapshot e bloqueiam a finalização. Evite essas operações até concluir ou cancelar a conferência.
 - **Contagem manual**: Imprimir a planilha não salva a quantidade física; os valores precisam ser inseridos na tela antes de finalizar.
 - **Branch local `main`**: Pode permanecer atrás de `origin/main` enquanto o trabalho ocorre na branch `agent/atomic-sales-inventory`; use a referência remota ao comparar conteúdo de produção.
+- **Impressão de etiquetas**: A janela de impressão deve estar em A4, escala 100% (tamanho real), margens padrão e sem cabeçalhos/rodapés; qualquer escala diferente desalinha a folha Pimaco.
