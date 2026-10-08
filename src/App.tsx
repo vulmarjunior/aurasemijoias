@@ -9,6 +9,7 @@ const Clientes = lazy(() => import('./pages/Clientes').then(module => ({ default
 const Vendas = lazy(() => import('./pages/Vendas').then(module => ({ default: module.Vendas })));
 const Movimentacoes = lazy(() => import('./pages/Movimentacoes').then(module => ({ default: module.Movimentacoes })));
 const Inventarios = lazy(() => import('./pages/Inventarios').then(module => ({ default: module.Inventarios })));
+const Etiquetas = lazy(() => import('./pages/Etiquetas').then(module => ({ default: module.Etiquetas })));
 const Importar = lazy(() => import('./pages/Importar').then(module => ({ default: module.Importar })));
 const Configuracoes = lazy(() => import('./pages/Configuracoes').then(module => ({ default: module.Configuracoes })));
 const Faq = lazy(() => import('./pages/Faq').then(module => ({ default: module.Faq })));
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="vendas" element={<Vendas />} />
             <Route path="movimentacoes" element={<Movimentacoes />} />
             <Route path="inventarios" element={<Inventarios />} />
+            <Route path="etiquetas" element={<Etiquetas />} />
             <Route path="importar" element={<Importar />} />
             <Route path="configuracoes" element={<Configuracoes />} />
             <Route path="faq" element={<Faq />} />
