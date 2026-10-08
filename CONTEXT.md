@@ -305,7 +305,7 @@ canManageUsers(perfil) // ADMIN
 - Divisão de bundle por página e remoção do cache PWA de respostas autenticadas do Supabase.
 - Conferência de inventário digital retomável, contagem cega/aberta, filtros, autosave, impressão manual e relatório final.
 - Saída em lote em `/movimentacoes`: baixa de vários produtos em um único lançamento atômico, com busca por produto e validação de estoque no cliente e no banco.
-- Impressão de etiquetas em `/etiquetas`: seleção em lote (busca, categoria, status), 1 etiqueta por produto com `codigo_peca` + preço de venda, pré-visualização fiel da folha PIMACO A4251 (65 por folha), posição inicial para reaproveitar folhas parciais e ajuste fino de impressão em mm.
+- Impressão de etiquetas em `/etiquetas`: seleção em lote (busca, categoria, disponibilidade), 1 etiqueta por produto com `codigo_peca` + preço de venda, pré-visualização fiel da folha PIMACO A4251 (65 por folha), posição inicial para reaproveitar folhas parciais e ajuste fino de impressão em mm.
 
 ---
 

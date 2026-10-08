@@ -53,7 +53,7 @@
 - **Status**: ✅ Confirmado
 - **Data**: 2026-10-08
 - **Contexto**: O usuário redigitava produto por produto no editor da Pimaco para imprimir etiquetas de código e preço.
-- **Solução**: A tela `/etiquetas` seleciona produtos em lote (busca, categoria e status), monta as folhas A4251 (65 etiquetas de 38,2 × 21,2 mm em 5 colunas × 13 linhas) e imprime via `window.print()` com `codigo_peca` (fallback `referencia`) e preço de venda. Inclui posição inicial da folha e ajuste fino horizontal/vertical em mm.
+- **Solução**: A tela `/etiquetas` seleciona produtos em lote (busca, categoria e disponibilidade), monta as folhas A4251 (65 etiquetas de 38,2 × 21,2 mm em 5 colunas × 13 linhas) e imprime via `window.print()` com `codigo_peca` (fallback `referencia`) e preço de venda. Inclui posição inicial da folha e ajuste fino horizontal/vertical em mm.
 - **Observações**: A folha é renderizada com `createPortal` em `document.body` e `#root { display:none }` no `@media print`, com `@page` A4 retrato injetado pela própria página.
 
 ### Deploy
@@ -151,3 +151,4 @@ Nenhuma correção registrada nesta sessão.
 - **Contagem manual**: Imprimir a planilha não salva a quantidade física; os valores precisam ser inseridos na tela antes de finalizar.
 - **Branch local `main`**: Pode permanecer atrás de `origin/main` enquanto o trabalho ocorre na branch `agent/atomic-sales-inventory`; use a referência remota ao comparar conteúdo de produção.
 - **Impressão de etiquetas**: A janela de impressão deve estar em A4, escala 100% (tamanho real), margens padrão e sem cabeçalhos/rodapés; qualquer escala diferente desalinha a folha Pimaco.
+- **Status `EM_ESTOQUE` (R1)**: Só existe com quantidade ≥ 3. Como a loja trabalha com peças únicas, o catálogo real fica praticamente todo em `ESGOTADO`/`BAIXA_NO_ESTOQUE` (dados de 2026-10-08: 411 esgotados, 35 baixa, 0 em estoque). Filtros de disponibilidade no app devem usar `quantidade > 0`, nunca o status `EM_ESTOQUE`.

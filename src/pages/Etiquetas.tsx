@@ -10,7 +10,6 @@ type Produto = {
   nome: string
   categoria: string
   quantidade: number
-  status: string
   valor_venda: number | null
 }
 
@@ -31,13 +30,7 @@ const MARGIN_Y = 10.7
 const PITCH_X = 40.7
 const PITCH_Y = 21.2
 
-const statusList = ['TODOS', 'EM_ESTOQUE', 'BAIXA_NO_ESTOQUE', 'ESGOTADO']
-
-const statusLabel: Record<string, string> = {
-  EM_ESTOQUE: 'Em Estoque',
-  BAIXA_NO_ESTOQUE: 'Baixa no Estoque',
-  ESGOTADO: 'Esgotado',
-}
+type FiltroEstoque = 'TODOS' | 'COM_ESTOQUE' | 'ESGOTADOS'
 
 const printPageStyle = '@media print { @page { size: A4 portrait; margin: 0; } }'
 
@@ -104,7 +97,7 @@ export function Etiquetas() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('TODOS')
-  const [filterStatus, setFilterStatus] = useState('TODOS')
+  const [filterStatus, setFilterStatus] = useState<FiltroEstoque>('TODOS')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [skip, setSkip] = useState(0)
   const [offsetX, setOffsetX] = useState(0)
@@ -123,11 +116,14 @@ export function Etiquetas() {
     setLoading(true)
     const { data } = await supabase
       .from('produtos')
-      .select('id, codigo_peca, referencia, nome, categoria, quantidade, status, valor_venda')
+      .select('id, codigo_peca, referencia, nome, categoria, quantidade, valor_venda')
       .order('codigo_peca', { ascending: true })
     if (data) setProdutos(data)
     setLoading(false)
   }
+
+  const totalComEstoque = produtos.filter(p => p.quantidade > 0).length
+  const totalEsgotados = produtos.length - totalComEstoque
 
   const filtered = produtos.filter(p => {
     const termo = search.trim().toLowerCase()
@@ -136,7 +132,10 @@ export function Etiquetas() {
       || p.codigo_peca?.toLowerCase().includes(termo)
       || p.referencia?.toLowerCase().includes(termo)
     const matchCat = filterCat === 'TODOS' || p.categoria === filterCat
-    const matchStatus = filterStatus === 'TODOS' || p.status === filterStatus
+    const matchStatus =
+      filterStatus === 'TODOS'
+      || (filterStatus === 'COM_ESTOQUE' && p.quantidade > 0)
+      || (filterStatus === 'ESGOTADOS' && p.quantidade === 0)
     return matchSearch && matchCat && matchStatus
   })
 
@@ -257,13 +256,17 @@ export function Etiquetas() {
               ))}
             </div>
             <div className="flex gap-2 flex-wrap">
-              {statusList.map(s => (
+              {([
+                { valor: 'TODOS' as const, label: 'Todos' },
+                { valor: 'COM_ESTOQUE' as const, label: `Com estoque (${totalComEstoque})` },
+                { valor: 'ESGOTADOS' as const, label: `Esgotados (${totalEsgotados})` },
+              ]).map(op => (
                 <button
-                  key={s}
-                  onClick={() => setFilterStatus(s === filterStatus ? 'TODOS' : s)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${filterStatus === s ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                  key={op.valor}
+                  onClick={() => setFilterStatus(op.valor)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${filterStatus === op.valor ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
                 >
-                  {s === 'TODOS' ? 'Todos os status' : statusLabel[s]}
+                  {op.label}
                 </button>
               ))}
             </div>
