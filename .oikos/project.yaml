@@ -1,0 +1,45 @@
+schema_version: 2
+
+project:
+  name: Aura Semijoias
+  slug: aurasemijoias
+  category: pessoal
+  lifecycle: production
+  repository: https://github.com/vulmarjunior/aurasemijoias
+  default_branch: main
+  protocol_profile: core
+
+sources:
+  tasks:
+    type: file
+    path: docs/PENDENCIAS.md
+  master_plan: docs/MASTER_PLAN.md
+  session_routine: docs/operacao/ROTINA_SESSAO.md
+  changelog: null
+  architecture: Especificacao_Tecnica.md
+  decisions: null
+
+deployment:
+  state: production
+  provider: vercel
+  url: https://aurasemijoias.vercel.app
+  account_alias: null
+  verified_at: "2026-10-23"
+
+database:
+  state: production
+  provider: postgresql
+  project_alias: aurasemijoias
+  account_alias: null
+  environment: production
+  verified_at: "2026-10-23"
+
+memory:
+  enabled: false
+  workspace: null
+  project: null
+
+oikos:
+  protocol_version: "0.2"
+  adopted_at: "2026-10-23"
+  last_audit_at: "2026-10-23"
